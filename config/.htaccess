@@ -1,0 +1,5 @@
+# config/.htaccess — bloqueia acesso direto via browser
+<FilesMatch ".*">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

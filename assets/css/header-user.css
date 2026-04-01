@@ -1,0 +1,188 @@
+/* ============================================================
+   HEADER — botões e menu de usuário
+   Adicionar ao assets/css/gcb.css (ou arquivo de estilos global)
+   ============================================================ */
+
+/* ── Botão outline (novo: "Anunciar empresa") ── */
+.btn-header-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--gcb-green-dark);
+  border: 1.5px solid rgba(61, 71, 51, .25);
+  background: transparent;
+  transition: border-color .2s, background .2s;
+  white-space: nowrap;
+}
+.btn-header-outline:hover {
+  border-color: var(--gcb-green-dark);
+  background: rgba(61, 71, 51, .05);
+  color: var(--gcb-green-dark);
+}
+
+/* ── Avatar button ── */
+.header-user-menu {
+  position: relative;
+}
+
+.header-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(61, 71, 51, .18);
+  background: white;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gcb-graphite);
+}
+.header-avatar-btn:hover {
+  border-color: var(--gcb-gold);
+  box-shadow: 0 2px 12px rgba(201, 170, 107, .18);
+}
+
+.avatar-initials {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--gcb-green-dark);
+  color: var(--gcb-gold);
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: .05em;
+}
+
+.avatar-name {
+  color: var(--gcb-graphite);
+  font-size: 12px;
+  font-weight: 600;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Dropdown do usuário ── */
+.header-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 240px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid rgba(61, 71, 51, .1);
+  box-shadow: 0 16px 48px rgba(29, 29, 27, .14);
+  z-index: 500;
+  overflow: hidden;
+  animation: dropdown-in .18s ease;
+}
+.header-dropdown.open {
+  display: block;
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Cabeçalho do dropdown */
+.dropdown-user-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--gcb-offwhite);
+}
+
+.dropdown-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gcb-green-dark);
+  color: var(--gcb-gold);
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.dropdown-user-info strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gcb-graphite);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dropdown-user-info span {
+  font-size: 11px;
+  color: var(--gcb-warmgray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Links do dropdown */
+.dropdown-item-gcb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gcb-graphite);
+  text-decoration: none;
+  transition: background .15s;
+}
+.dropdown-item-gcb:hover {
+  background: var(--gcb-offwhite);
+  color: var(--gcb-green-dark);
+}
+.dropdown-item-gcb svg {
+  color: var(--gcb-warmgray);
+  flex-shrink: 0;
+}
+.dropdown-item-gcb:hover svg {
+  color: var(--gcb-gold);
+}
+
+/* Item "Sair" */
+.dropdown-item-danger {
+  color: #c0392b;
+}
+.dropdown-item-danger:hover {
+  background: #fef2f2;
+  color: #c0392b;
+}
+.dropdown-item-danger svg {
+  color: #c0392b;
+}
+
+/* Divisor */
+.dropdown-divider {
+  height: 1px;
+  background: rgba(61, 71, 51, .07);
+  margin: 4px 0;
+}

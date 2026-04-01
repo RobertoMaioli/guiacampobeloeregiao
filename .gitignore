@@ -1,0 +1,31 @@
+# ── Arquivos sensíveis — NUNCA versionar ──────────────────
+config/database.php
+config/mail.php
+
+# ── Uploads de usuários ───────────────────────────────────
+assets/img/lugares/
+
+# ── Logs ──────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Cache e temporários ───────────────────────────────────
+*.cache
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# ── Dependências (se usar composer futuramente) ───────────
+vendor/
+composer.lock
+
+# ── IDEs ──────────────────────────────────────────────────
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# ── Ambiente ──────────────────────────────────────────────
+.env
+.env.local
