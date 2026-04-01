@@ -39,7 +39,7 @@ $empresas = DB::query(
     "SELECT
         e.id, e.status, e.plan_intent, e.plano_ativo,
         e.submetido_em, e.criado_em, e.motivo_recusa,
-        u.nome AS usuario_nome, u.email AS usuario_email,
+        u.id AS usuario_id, u.nome AS usuario_nome, u.email AS usuario_email,
         l.nome AS lugar_nome, l.slug AS lugar_slug
      FROM empresas e
      JOIN usuarios u ON u.id = e.usuario_id
@@ -76,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && Sanitize::csrfValid($_POST['_token'
                 $lid = (int)($emp['lugar_id'] ?? 0);
                 $uid = (int)($emp['usuario_id'] ?? 0);
 
-                // Remove lugar e dependências
                 if ($lid) {
                     DB::exec('DELETE FROM fotos         WHERE lugar_id = ?', [$lid]);
                     DB::exec('DELETE FROM horarios       WHERE lugar_id = ?', [$lid]);
@@ -85,10 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && Sanitize::csrfValid($_POST['_token'
                     DB::exec('DELETE FROM avaliacoes     WHERE lugar_id = ?', [$lid]);
                     DB::exec('DELETE FROM lugares        WHERE id = ?',       [$lid]);
                 }
-                // Remove logs e empresa
                 DB::exec('DELETE FROM empresa_logs WHERE empresa_id = ?', [$eid]);
                 DB::exec('DELETE FROM empresas     WHERE id = ?',         [$eid]);
-                // Remove usuário
                 if ($uid) {
                     DB::exec('DELETE FROM usuarios WHERE id = ?', [$uid]);
                 }
@@ -106,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && Sanitize::csrfValid($_POST['_token'
     }
 }
 
+$csrf = Sanitize::csrfToken();
 include __DIR__ . '/../_layout.php';
 ?>
 
@@ -279,8 +277,7 @@ foreach ($cards_totais as $c): ?>
                 $cor   = $horas > 24 ? 'text-red-500' : 'text-warmgray';
                 ?>
                 <div class="text-[10px] <?= $cor ?> mt-0.5">
-                    há <?= $horas ?>h
-                    <?= $horas > 24 ? '⚠ atrasado' : '' ?>
+                    há <?= $horas ?>h <?= $horas > 24 ? '⚠ atrasado' : '' ?>
                 </div>
                 <?php endif; ?>
             </td>
@@ -288,36 +285,36 @@ foreach ($cards_totais as $c): ?>
             <!-- Ações -->
             <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
+
                     <?php if ($e['status'] === 'pendente'): ?>
-                    <!-- Botões de aprovação rápida -->
                     <button onclick="abrirModal(<?= (int)$e['id'] ?>, '<?= Sanitize::html($e['usuario_nome']) ?>', '<?= Sanitize::html($e['plan_intent']) ?>')"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-dark
                                    hover:bg-green text-white text-[11px] font-bold rounded-lg
                                    transition-colors">
                         Analisar
                     </button>
-                    <?php elseif ($e['status'] === 'aprovada'): ?>
-                    <a href="/admin/empresas/editar.php?id=<?= (int)$e['id'] ?>"
-                       class="text-[11px] font-bold text-gold hover:text-green-dark transition-colors">
-                        Editar
-                    </a>
                     <?php else: ?>
                     <button onclick="abrirModal(<?= (int)$e['id'] ?>, '<?= Sanitize::html($e['usuario_nome']) ?>', '<?= Sanitize::html($e['plan_intent']) ?>')"
                             class="text-[11px] font-bold text-warmgray hover:text-green-dark transition-colors">
-                        Ver
+                        Plano
                     </button>
                     <?php endif; ?>
+
+                    <!-- Editar usuário — aparece em TODOS os status -->
+                    <button onclick="abrirModalUsuario(<?= (int)$e['usuario_id'] ?>, '<?= Sanitize::html($e['usuario_nome']) ?>', '<?= Sanitize::html($e['usuario_email']) ?>')" class="text-[11px] font-bold text-gold hover:text-green-dark transition-colors">
+                        Editar
+                    </button>
+
                     <!-- Excluir -->
-                    <form method="POST" style="display:inline"
-                          onsubmit="return confirm('ATENÇÃO: Excluir permanentemente esta empresa e o usuário?\nNão pode ser desfeito.')">
+                    <form method="POST" style="display:inline" onsubmit="return confirm('ATENÇÃO: Excluir permanentemente esta empresa e o usuário?\nNão pode ser desfeito.')">
                       <input type="hidden" name="_token"     value="<?= Sanitize::html($csrf) ?>">
                       <input type="hidden" name="action"     value="excluir_empresa">
                       <input type="hidden" name="empresa_id" value="<?= (int)$e['id'] ?>">
-                      <button type="submit"
-                              class="text-[11px] font-bold text-red-500 hover:text-red-700 transition-colors ml-1">
+                      <button type="submit" class="text-[11px] font-bold text-red-500 hover:text-red-700 transition-colors ml-1">
                         Excluir
                       </button>
                     </form>
+
                 </div>
             </td>
         </tr>
@@ -328,14 +325,16 @@ foreach ($cards_totais as $c): ?>
     <?php endif; ?>
 </div>
 
-<!-- ── Modal de análise ── -->
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL — Analisar empresa
+════════════════════════════════════════════════════════════ -->
 <div id="modal-overlay"
      class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
      onclick="if(event.target===this) fecharModal()">
 
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg" onclick="event.stopPropagation()">
 
-        <!-- Header do modal -->
         <div class="flex items-center justify-between px-6 py-5 border-b border-offwhite">
             <div>
                 <h3 class="font-display text-[18px] font-bold text-green-dark" id="modal-titulo">
@@ -354,24 +353,21 @@ foreach ($cards_totais as $c): ?>
         </div>
 
         <form method="POST" action="/admin/empresas/aprovar.php" id="modal-form">
-            <input type="hidden" name="_token" value="<?= Sanitize::html($csrf) ?>">
+            <input type="hidden" name="_token"     value="<?= Sanitize::html($csrf) ?>">
             <input type="hidden" name="empresa_id" id="modal-empresa-id">
-            <input type="hidden" name="acao" id="modal-acao" value="aprovar">
+            <input type="hidden" name="acao"       id="modal-acao" value="aprovar">
 
             <div class="px-6 py-5 space-y-4">
 
-                <!-- Plano a ativar (só aparece no aprovar) -->
                 <div id="bloco-plano">
-                    <label class="block text-[10px] font-black tracking-widest uppercase
-                                  text-warmgray mb-2">
+                    <label class="block text-[10px] font-black tracking-widest uppercase text-warmgray mb-2">
                         Plano a ativar
                     </label>
                     <div class="grid grid-cols-3 gap-2">
                         <?php foreach (['essencial'=>'Essencial','profissional'=>'Profissional','premium'=>'Premium'] as $v=>$l): ?>
                         <label class="plano-opt flex flex-col items-center p-3 rounded-xl border-2
                                       border-green/[0.1] cursor-pointer transition-all text-center
-                                      hover:border-gold/50"
-                               data-val="<?= $v ?>">
+                                      hover:border-gold/50" data-val="<?= $v ?>">
                             <input type="radio" name="plano_ativo" value="<?= $v ?>"
                                    class="sr-only" <?= $v==='profissional'?'checked':'' ?>>
                             <span class="text-[12px] font-bold text-graphite"><?= $l ?></span>
@@ -380,10 +376,9 @@ foreach ($cards_totais as $c): ?>
                     </div>
                 </div>
 
-                <!-- Observação -->
                 <div>
-                    <label class="block text-[10px] font-black tracking-widest uppercase
-                                  text-warmgray mb-2" id="label-obs">
+                    <label class="block text-[10px] font-black tracking-widest uppercase text-warmgray mb-2"
+                           id="label-obs">
                         Observação interna (opcional)
                     </label>
                     <textarea name="observacao" id="modal-obs" rows="3"
@@ -393,10 +388,8 @@ foreach ($cards_totais as $c): ?>
                                      focus:border-gold/60 transition-colors"></textarea>
                 </div>
 
-                <!-- Motivo de recusa (só aparece ao reprovar) -->
                 <div id="bloco-motivo" class="hidden">
-                    <label class="block text-[10px] font-black tracking-widest uppercase
-                                  text-warmgray mb-2">
+                    <label class="block text-[10px] font-black tracking-widest uppercase text-warmgray mb-2">
                         Motivo da recusa <span class="text-red-500">*</span>
                     </label>
                     <div class="grid grid-cols-1 gap-1.5 mb-3">
@@ -426,7 +419,6 @@ foreach ($cards_totais as $c): ?>
 
             </div>
 
-            <!-- Footer do modal -->
             <div class="flex items-center gap-3 px-6 py-4 border-t border-offwhite bg-offwhite/50 rounded-b-2xl">
                 <button type="button" onclick="fecharModal()"
                         class="px-4 py-2 border border-green/[0.15] text-[12px] font-semibold
@@ -434,23 +426,19 @@ foreach ($cards_totais as $c): ?>
                     Cancelar
                 </button>
                 <div class="flex-1"></div>
-                <button type="button" id="btn-reprovar"
-                        onclick="setAcao('reprovar')"
+                <button type="button" id="btn-reprovar" onclick="setAcao('reprovar')"
                         class="px-4 py-2 border border-red-200 text-[12px] font-bold
                                text-red-600 rounded-xl hover:bg-red-50 transition-colors">
                     Reprovar
                 </button>
                 <button type="button" id="btn-confirmar-reprovacao" onclick="confirmarReprovacao()"
                         class="hidden px-5 py-2 bg-red-600 hover:bg-red-700 text-white
-                               text-[12px] font-black tracking-wider uppercase
-                               rounded-xl transition-colors">
+                               text-[12px] font-black tracking-wider uppercase rounded-xl transition-colors">
                     Confirmar reprovação ✗
                 </button>
-                <button type="submit" id="btn-aprovar"
-                        onclick="setAcao('aprovar')"
+                <button type="submit" id="btn-aprovar" onclick="setAcao('aprovar')"
                         class="px-5 py-2 bg-green-dark hover:bg-green text-white
-                               text-[12px] font-black tracking-wider uppercase
-                               rounded-xl transition-colors">
+                               text-[12px] font-black tracking-wider uppercase rounded-xl transition-colors">
                     Aprovar ✓
                 </button>
             </div>
@@ -458,8 +446,111 @@ foreach ($cards_totais as $c): ?>
     </div>
 </div>
 
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL — Editar usuário
+════════════════════════════════════════════════════════════ -->
+<div id="modal-usuario"
+     class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+     onclick="if(event.target===this) fecharModalUsuario()">
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md" onclick="event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-offwhite">
+            <div>
+                <h3 class="font-display text-[18px] font-bold text-green-dark">Editar usuário</h3>
+                <p class="text-[12px] text-warmgray mt-0.5" id="mu-subtitulo"></p>
+            </div>
+            <button onclick="fecharModalUsuario()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full
+                           hover:bg-offwhite transition-colors text-warmgray">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-offwhite">
+            <button onclick="muTab('dados')" id="mu-tab-dados"
+                    class="flex-1 py-3 text-[12px] font-bold tracking-wider uppercase
+                           border-b-2 border-green-dark text-green-dark transition-colors">
+                Dados
+            </button>
+            <button onclick="muTab('senha')" id="mu-tab-senha"
+                    class="flex-1 py-3 text-[12px] font-bold tracking-wider uppercase
+                           border-b-2 border-transparent text-warmgray transition-colors">
+                Senha
+            </button>
+        </div>
+
+        <!-- Feedback -->
+        <div id="mu-feedback"
+             class="hidden mx-6 mt-4 px-4 py-3 rounded-xl text-[13px] font-semibold"></div>
+
+        <form id="mu-form" class="px-6 py-5 flex flex-col gap-4">
+            <input type="hidden" name="_token"     value="<?= Sanitize::html($csrf) ?>">
+            <input type="hidden" id="mu-usuario-id" name="usuario_id" value="">
+            <input type="hidden" id="mu-acao"       name="acao"       value="dados">
+
+            <!-- Painel dados -->
+            <div id="mu-painel-dados" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-black tracking-[0.15em] uppercase text-warmgray">Nome</label>
+                    <input type="text" id="mu-nome" name="nome"
+                           class="px-3 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
+                                  text-[13px] outline-none focus:border-gold transition-colors"/>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-black tracking-[0.15em] uppercase text-warmgray">E-mail</label>
+                    <input type="email" id="mu-email" name="email"
+                           class="px-3 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
+                                  text-[13px] outline-none focus:border-gold transition-colors"/>
+                </div>
+            </div>
+
+            <!-- Painel senha -->
+            <div id="mu-painel-senha" class="hidden flex-col gap-4">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-black tracking-[0.15em] uppercase text-warmgray">Nova senha</label>
+                    <input type="password" id="mu-nova-senha" name="nova_senha"
+                           placeholder="Mínimo 8 caracteres"
+                           class="px-3 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
+                                  text-[13px] outline-none focus:border-gold transition-colors"/>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-black tracking-[0.15em] uppercase text-warmgray">Confirmar senha</label>
+                    <input type="password" id="mu-conf-senha" name="conf_senha"
+                           placeholder="Repita a senha"
+                           class="px-3 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
+                                  text-[13px] outline-none focus:border-gold transition-colors"/>
+                </div>
+            </div>
+        </form>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-offwhite
+                    bg-offwhite/50 rounded-b-2xl">
+            <button type="button" onclick="fecharModalUsuario()"
+                    class="px-4 py-2 border border-green/[0.15] text-[12px] font-semibold
+                           text-warmgray rounded-xl hover:border-gold transition-colors">
+                Cancelar
+            </button>
+            <button type="button" onclick="salvarUsuario()"
+                    class="px-5 py-2 bg-green-dark hover:bg-green text-white
+                           text-[12px] font-black tracking-wider uppercase rounded-xl transition-colors">
+                Salvar
+            </button>
+        </div>
+    </div>
+</div>
+
+
 <script>
-// Plano selecionado no modal
+// ════════════════════════════════════════════════════════════
+//  MODAL ANALISAR
+// ════════════════════════════════════════════════════════════
 document.querySelectorAll('.plano-opt').forEach(lbl => {
     lbl.addEventListener('click', () => {
         document.querySelectorAll('.plano-opt').forEach(l => {
@@ -471,7 +562,6 @@ document.querySelectorAll('.plano-opt').forEach(lbl => {
         lbl.querySelector('input').checked = true;
     });
 });
-// Destacar plano padrão
 document.querySelector('.plano-opt[data-val="profissional"]')?.click();
 
 function abrirModal(id, nome, planIntent) {
@@ -479,10 +569,8 @@ function abrirModal(id, nome, planIntent) {
     document.getElementById('modal-titulo').textContent = 'Analisar: ' + nome;
     document.getElementById('modal-subtitulo').textContent = 'Plano solicitado: ' + planIntent;
     document.getElementById('modal-overlay').classList.remove('hidden');
-    // Pré-selecionar o plano que o usuário solicitou
     const opt = document.querySelector('.plano-opt[data-val="' + planIntent + '"]');
     if (opt) opt.click();
-    // Reset modo
     setAcao('aprovar');
 }
 
@@ -494,17 +582,15 @@ function fecharModal() {
 
 function setAcao(acao) {
     document.getElementById('modal-acao').value = acao;
-    const blocoPlano  = document.getElementById('bloco-plano');
-    const blocoMotivo = document.getElementById('bloco-motivo');
-    const btnAprovar  = document.getElementById('btn-aprovar');
-    const btnReprovar = document.getElementById('btn-reprovar');
-    const labelObs    = document.getElementById('label-obs');
-
+    const blocoPlano   = document.getElementById('bloco-plano');
+    const blocoMotivo  = document.getElementById('bloco-motivo');
+    const btnAprovar   = document.getElementById('btn-aprovar');
+    const btnReprovar  = document.getElementById('btn-reprovar');
     const btnConfirmar = document.getElementById('btn-confirmar-reprovacao');
+
     if (acao === 'reprovar') {
         blocoPlano.classList.add('hidden');
         blocoMotivo.classList.remove('hidden');
-        labelObs.textContent = 'Observação interna (opcional)';
         btnAprovar.classList.add('hidden');
         btnReprovar.classList.add('hidden');
         btnConfirmar.classList.remove('hidden');
@@ -530,9 +616,78 @@ function confirmarReprovacao() {
     document.getElementById('modal-form').requestSubmit();
 }
 
-// Fechar com Escape
+
+// ════════════════════════════════════════════════════════════
+//  MODAL EDITAR USUÁRIO
+// ════════════════════════════════════════════════════════════
+function abrirModalUsuario(id, nome, email) {
+    document.getElementById('mu-usuario-id').value = id;
+    document.getElementById('mu-subtitulo').textContent  = nome;
+    document.getElementById('mu-nome').value  = nome;
+    document.getElementById('mu-email').value = email;
+    document.getElementById('mu-nova-senha').value = '';
+    document.getElementById('mu-conf-senha').value = '';
+    document.getElementById('mu-feedback').classList.add('hidden');
+    muTab('dados');
+    document.getElementById('modal-usuario').classList.remove('hidden');
+}
+
+function fecharModalUsuario() {
+    document.getElementById('modal-usuario').classList.add('hidden');
+}
+
+function muTab(tab) {
+    const isDados = tab === 'dados';
+    const painelDados = document.getElementById('mu-painel-dados');
+    const painelSenha = document.getElementById('mu-painel-senha');
+    const tabDados    = document.getElementById('mu-tab-dados');
+    const tabSenha    = document.getElementById('mu-tab-senha');
+
+    painelDados.classList.toggle('hidden', !isDados);
+    painelSenha.classList.toggle('hidden', isDados);
+
+    document.getElementById('mu-acao').value = isDados ? 'dados' : 'senha';
+
+    const ativo   = 'flex-1 py-3 text-[12px] font-bold tracking-wider uppercase border-b-2 border-green-dark text-green-dark transition-colors';
+    const inativo = 'flex-1 py-3 text-[12px] font-bold tracking-wider uppercase border-b-2 border-transparent text-warmgray transition-colors';
+    tabDados.className = isDados ? ativo : inativo;
+    tabSenha.className = isDados ? inativo : ativo;
+}
+
+async function salvarUsuario() {
+    const fb      = document.getElementById('mu-feedback');
+    const payload = new FormData(document.getElementById('mu-form'));
+
+    fb.className = 'hidden mx-6 mt-0 px-4 py-3 rounded-xl text-[13px] font-semibold';
+
+    try {
+        const res  = await fetch('/admin/empresas/salvar.php', { method: 'POST', body: payload });
+        const data = await res.json();
+
+        fb.classList.remove('hidden');
+        if (data.ok) {
+            fb.classList.add('bg-emerald-50', 'text-emerald-700', 'border', 'border-emerald-200');
+            fb.textContent = data.msg;
+            if (payload.get('acao') === 'dados') {
+                setTimeout(() => location.reload(), 1200);
+            }
+        } else {
+            fb.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+            fb.textContent = data.erro;
+        }
+    } catch (err) {
+        fb.classList.remove('hidden');
+        fb.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+        fb.textContent = 'Erro de comunicação. Tente novamente.';
+    }
+}
+
+// Fechar modais com Escape
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') fecharModal();
+    if (e.key === 'Escape') {
+        fecharModal();
+        fecharModalUsuario();
+    }
 });
 </script>
 

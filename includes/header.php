@@ -45,6 +45,13 @@ if ($_logado) {
 
         <!-- ── Actions ── -->
         <div class="d-flex align-items-center gap-2">
+            
+            <a href="/pages/mapa.php"
+                 class="btn-header-outline d-none d-sm-inline-flex align-items-center gap-2"
+                 style="color:#c9aa6b"
+                 title="Ver mapa">
+                <?= icon('map', 14) ?> Mapa
+            </a>
 
           <?php if (!$_logado): ?>
             <!-- ── Deslogado: Registar + Entrar ── -->

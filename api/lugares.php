@@ -22,6 +22,7 @@ require_once __DIR__ . '/../core/Sanitize.php';
 $q        = Sanitize::get('q');
 $cat      = Sanitize::get('cat');
 $preco    = Sanitize::get('preco');
+$sort     = Sanitize::get('sort');          // ← adicionar
 $destaque = Sanitize::get('destaque', 'int', 0);
 $limit    = min(Sanitize::get('limit', 'int', 12), 50);
 $offset   = Sanitize::get('offset', 'int', 0);
@@ -47,7 +48,7 @@ if ($preco !== '' && $preco !== 'todos') {
 }
 
 if ($destaque) {
-    $where[]  = 'l.destaque = 1';
+    $where[] = "l.plano = 'premium'";
 }
 
 $whereSQL = implode(' AND ', $where);
@@ -60,6 +61,16 @@ $total = (int) DB::row(
      WHERE $whereSQL",
     $params
 )['n'];
+
+// ── Ordenação ──
+$order_sql = match($sort) {
+    'avaliacao'  => 'l.rating DESC, l.total_reviews DESC',
+    'novo'       => 'l.criado_em DESC',
+    'preco-asc'  => 'l.preco_nivel ASC',
+    'preco-desc' => 'l.preco_nivel DESC',
+    'destaque'   => "CASE WHEN l.plano = 'premium' THEN 0 ELSE 1 END, l.rating DESC",
+    default      => 'l.rating DESC',
+};
 
 // ── Results ──
 $rows = DB::query(
@@ -86,7 +97,7 @@ $rows = DB::query(
      JOIN categorias c ON c.id = l.categoria_id
      LEFT JOIN fotos f ON f.lugar_id = l.id AND f.principal = 1
      WHERE $whereSQL
-     ORDER BY l.destaque DESC, l.rating DESC, l.nome ASC
+     ORDER BY $order_sql
      LIMIT ? OFFSET ?",
     array_merge($params, [$limit, $offset])
 );

@@ -42,7 +42,7 @@ if (empty($featured)) {
 
 /* ── Listings ── */
 $listings_db = DB::query(
-    "SELECT l.id,l.slug,l.nome,l.cat_label,l.badge,l.preco_simbolo,l.endereco,
+    "SELECT l.id,l.slug,l.nome,l.cat_label,l.badge,l.plano,l.preco_simbolo,l.endereco,
             l.rating,l.total_reviews,c.slug AS cat_slug,c.label AS cat_nome,
             COALESCE(f.url,l.foto_principal) AS foto_capa,
             CASE WHEN EXISTS(SELECT 1 FROM horarios h WHERE h.lugar_id=l.id
@@ -56,7 +56,11 @@ $listings = [];
 foreach ($listings_db as $row) {
     $tags = DB::query('SELECT t.label FROM lugar_tags lt JOIN tags t ON t.id=lt.tag_id WHERE lt.lugar_id=? LIMIT 3',[$row['id']]);
     $row['tags'] = array_column($tags,'label');
-    if ($row['badge']) $row['badge'] = ['label'=>$row['badge'],'gold'=>strtolower($row['badge'])!=='novo'];
+
+    // Badge: premium sempre mostra "Destaque", senão usa o badge manual
+    $badge_label = ($row['plano'] === 'premium') ? 'Destaque' : ($row['badge'] ?: null);
+    $row['badge'] = $badge_label ? ['label' => $badge_label, 'gold' => strtolower($badge_label) !== 'novo'] : null;
+
     $row['name']     = $row['nome'];
     $row['category'] = $row['cat_label']??$row['cat_nome'];
     $row['price']    = $row['preco_simbolo'];
@@ -397,7 +401,7 @@ $quick_tags = ['Brunch','Sushi','Pet shop','Academia','Wine bar','Salão'];
       </h2>
       <div class="section-line mx-auto mt-3"></div>
       <p class="mt-3 mx-auto" style="font-size:15px;font-weight:300;color:var(--gcb-warmgray);max-width:480px">
-        Cada indicação passa por nossa curadoria rigorosa. Se está aqui, é porque merece.
+        Melhores avaliados a partir do Google Business
       </p>
     </div>
  
@@ -418,10 +422,10 @@ $quick_tags = ['Brunch','Sushi','Pet shop','Academia','Wine bar','Salão'];
                 <?= htmlspecialchars($item['badge']['label']) ?>
               </span>
               <?php else: ?><span></span><?php endif; ?>
-              <button class="fav-btn" onclick="this.classList.toggle('is-fav')"
-                      aria-label="Salvar">
-                <?= icon('heart',15) ?>
-              </button>
+              <!--<button class="fav-btn" onclick="this.classList.toggle('is-fav')"-->
+              <!--        aria-label="Salvar">-->
+              <!--  <?= icon('heart',15) ?>-->
+              <!--</button>-->
             </div>
             <?php if ($item['aberto_agora'] !== null): ?>
             <div class="position-absolute bottom-0 start-0 m-3">

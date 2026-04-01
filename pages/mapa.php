@@ -272,7 +272,7 @@ $faixas = ['todos'=>'Todos os preços','barato'=>'Até R$ 60','medio'=>'R$ 60–
       <span style="width:7px;height:7px;border-radius:50%;background:${p.aberto ? '#34d399' : '#f87171'};display:inline-block"></span>
       ${p.aberto ? 'Aberto agora' : 'Fechado'}
     </div>
-    <a href="/pages/lugar.php?slug=${p.slug}" class="popup-btn text-white">Ver estabelecimento →</a>
+    <a href="/pages/lugar/${p.slug}" class="popup-btn text-white">Ver estabelecimento →</a>
   </div>`;
     }
 

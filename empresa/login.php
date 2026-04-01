@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!UserAuth::login($email, $senha)) {
             $erro = 'E-mail ou senha incorretos.';
         } else {
-            header('Location: ' . UserAuth::intendedUrl('/empresa/dashboard.php'));
+            header('Location: ' . UserAuth::intendedUrl('/empresa/dashboard'));
             exit;
         }
     }
