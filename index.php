@@ -189,21 +189,30 @@ $quick_tags = ['Brunch','Sushi','Pet shop','Academia','Wine bar','Salão'];
   </div>
 
   <!-- Stats bar -->
-  <div class="hero-stats animate-fade-up delay-6" style="opacity:0">
-    <div class="d-flex justify-content-center flex-wrap">
-      <?php foreach ([
-        ['num'=>'380+','label'=>'Estabelecimentos'],
-        ['num'=>'12',  'label'=>'Categorias'],
-        ['num'=>'4.9★','label'=>'Avaliação média'],
-        ['num'=>'0,935','label'=>'IDH do bairro'],
-      ] as $s): ?>
-      <div class="hero-stat-item text-center">
-        <div class="hero-stat-num"><?= $s['num'] ?></div>
-        <div class="hero-stat-label"><?= $s['label'] ?></div>
+    <div class="hero-stats animate-fade-up delay-6" style="opacity:0">
+      <div class="d-flex justify-content-center flex-wrap">
+        <?php
+        // Busca números reais do banco
+        $stat_row = DB::row(
+          "SELECT
+             (SELECT COUNT(*) FROM lugares    WHERE ativo = 1) AS total_lugares,
+             (SELECT COUNT(*) FROM categorias WHERE ativo = 1) AS total_cats,
+             (SELECT ROUND(AVG(rating),1) FROM lugares WHERE ativo = 1 AND rating > 0) AS avg_rating"
+        );
+        $stats_hero = [
+          ['num' => number_format((int)$stat_row['total_lugares']) . '+', 'label' => 'Estabelecimentos'],
+          ['num' => (int)$stat_row['total_cats'],                   'label' => 'Categorias'],
+          ['num' => number_format((float)$stat_row['avg_rating'],1,'.',',') . '★', 'label' => 'Avaliação média'],
+          ['num' => '0,935', 'label' => 'IDH do bairro'],
+        ];
+        foreach ($stats_hero as $s): ?>
+        <div class="hero-stat-item text-center">
+          <div class="hero-stat-num"><?= $s['num'] ?></div>
+          <div class="hero-stat-label"><?= $s['label'] ?></div>
+        </div>
+        <?php endforeach; ?>
       </div>
-      <?php endforeach; ?>
     </div>
-  </div>
 </section>
 
 <!-- ── CATEGORY GRID ── -->
