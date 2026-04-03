@@ -19,16 +19,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!Sanitize::csrfValid($_POST['_token'] ?? '')) {
         $erro = 'Sessão inválida. Recarregue a página.';
     } else {
-        $email = Sanitize::post('email', 'email');
-        $senha = $_POST['senha'] ?? '';
 
-        if (!$email || $senha === '') {
-            $erro = 'Preencha e-mail e senha.';
-        } elseif (!Auth::login($email, $senha)) {
-            $erro = 'E-mail ou senha incorretos.';
+        // ── Valida Turnstile ──────────────────────────────────────────
+        $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
+        if (empty($turnstileToken)) {
+            $erro = 'Verificação de segurança não concluída.';
         } else {
-            header('Location: /admin/dashboard.php');
-            exit;
+            $verify = @file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false,
+                stream_context_create(['http' => [
+                    'method'  => 'POST',
+                    'header'  => 'Content-Type: application/x-www-form-urlencoded',
+                    'content' => http_build_query([
+                        'secret'   => '0x4AAAAAACzHCVgkYcexPpzay4BRYcHapUI',
+                        'response' => $turnstileToken,
+                        'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+                    ]),
+                    'timeout' => 10,
+                ]])
+            );
+            $result = $verify ? json_decode($verify, true) : [];
+            if (empty($result['success'])) {
+                $erro = 'Falha na verificação de segurança. Tente novamente.';
+            }
+        }
+        // ─────────────────────────────────────────────────────────────
+
+        if (!$erro) {
+            $email = Sanitize::post('email', 'email');
+            $senha = $_POST['senha'] ?? '';
+
+            if (!$email || $senha === '') {
+                $erro = 'Preencha e-mail e senha.';
+            } elseif (!Auth::login($email, $senha)) {
+                $erro = 'E-mail ou senha incorretos.';
+            } else {
+                header('Location: /admin/dashboard.php');
+                exit;
+            }
         }
     }
 }
@@ -49,7 +76,9 @@ $csrf = Sanitize::csrfToken();
         rel="stylesheet" />
     <link rel="icon" type="image/png" href="/assets/img/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
     <script>
     tailwind.config = {
         theme: {
@@ -76,9 +105,9 @@ $csrf = Sanitize::csrfToken();
     }
     </script>
     <style>
-    body {
-        font-family: 'Montserrat', sans-serif;
-    }
+    body { font-family: 'Montserrat', sans-serif; }
+    /* Centraliza o widget Turnstile */
+    .cf-turnstile { display: flex; justify-content: center; margin-bottom: 1.25rem; }
     </style>
 </head>
 
@@ -119,7 +148,8 @@ $csrf = Sanitize::csrfToken();
                     <label class="block text-[10px] font-black tracking-[0.18em] uppercase
                         text-[#8b8589] mb-2">E-mail</label>
                     <input type="email" name="email" required autocomplete="email"
-                        value="<?= Sanitize::html($_POST['email'] ?? '') ?>" class="w-full px-4 py-3 bg-[#f2f0eb] border border-[#3d4733]/10
+                        value="<?= Sanitize::html($_POST['email'] ?? '') ?>"
+                        class="w-full px-4 py-3 bg-[#f2f0eb] border border-[#3d4733]/10
                         rounded-xl text-[14px] outline-none
                         focus:border-[#c9aa6b]/60 focus:ring-2 focus:ring-[#c9aa6b]/15
                         transition-all duration-200" />
@@ -128,10 +158,17 @@ $csrf = Sanitize::csrfToken();
                 <div class="mb-6">
                     <label class="block text-[10px] font-black tracking-[0.18em] uppercase
                         text-[#8b8589] mb-2">Senha</label>
-                    <input type="password" name="senha" required autocomplete="current-password" class="w-full px-4 py-3 bg-[#f2f0eb] border border-[#3d4733]/10
+                    <input type="password" name="senha" required autocomplete="current-password"
+                        class="w-full px-4 py-3 bg-[#f2f0eb] border border-[#3d4733]/10
                         rounded-xl text-[14px] outline-none
                         focus:border-[#c9aa6b]/60 focus:ring-2 focus:ring-[#c9aa6b]/15
                         transition-all duration-200" />
+                </div>
+
+                <!-- Cloudflare Turnstile Widget -->
+                <div class="cf-turnstile"
+                     data-sitekey="0x4AAAAAACzHCfnzOpQH45p_"
+                     data-theme="light">
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-[#2a3022] hover:bg-[#3d4733] text-white

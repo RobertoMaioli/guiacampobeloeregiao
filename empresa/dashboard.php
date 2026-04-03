@@ -60,12 +60,12 @@ $horarios   = [];
 $dias_nomes = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 foreach (DB::query('SELECT * FROM horarios WHERE lugar_id=? ORDER BY dia_semana', [$lugar_id]) as $h) {
     $horarios[$dias_nomes[$h['dia_semana']]] = $h['fechado'] ? 'Fechado'
-        : ($h['dia_todo'] ? 'Dia todo' : substr($h['hora_abre'],0,5).'h – '.substr($h['hora_fecha'],0,5).'h');
+    : ($h['dia_todo'] ? 'Dia todo' : substr($h['hora_abre'] ?? '',0,5).'h – '.substr($h['hora_fecha'] ?? '',0,5).'h');
 }
 
 // Configuração de features por plano
 $features = [
-    'essencial'    => ['max_fotos'=>1,  'max_tags'=>0,  'mapa'=>false,'google'=>false,'whatsapp'=>false,'destaque'=>false,'sem_anuncios'=>false],
+    'essencial'    => ['max_fotos'=>0,  'max_tags'=>0,  'mapa'=>false,'google'=>false,'whatsapp'=>false,'destaque'=>false,'sem_anuncios'=>false],
     'profissional' => ['max_fotos'=>5,  'max_tags'=>5,  'mapa'=>true, 'google'=>true, 'whatsapp'=>true, 'destaque'=>false,'sem_anuncios'=>false],
     'premium'      => ['max_fotos'=>999,'max_tags'=>999,'mapa'=>true, 'google'=>true, 'whatsapp'=>true, 'destaque'=>true, 'sem_anuncios'=>true],
 ];
@@ -518,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php endforeach; ?>
         <?php if (!$lugar['endereco'] && !$lugar['telefone']): ?>
         <a href="/empresa/editar.php" style="font-size:12px;color:var(--gcb-gold)">
-          Adicionar informações de contato →
+          Aguardando foto  →
         </a>
         <?php endif; ?>
       </div>

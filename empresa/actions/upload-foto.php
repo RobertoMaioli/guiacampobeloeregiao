@@ -26,7 +26,7 @@ if (!$lugar_id || !DB::row('SELECT id FROM lugares WHERE id=? AND empresa_id=?',
 }
 
 // Limite por plano
-$max     = $plan === 'premium' ? 999 : ($plan === 'profissional' ? 5 : 1);
+$max     = $plan === 'premium' ? 999 : ($plan === 'profissional' ? 5 : 0);
 $atual   = (int)(DB::row('SELECT COUNT(*) n FROM fotos WHERE lugar_id=?',[$lugar_id])['n'] ?? 0);
 $restam  = max(0, $max - $atual);
 

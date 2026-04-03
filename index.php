@@ -114,7 +114,7 @@ $quick_tags = ['Brunch','Sushi','Pet shop','Academia','Wine bar','Salão'];
     <!-- H1 -->
     <h1 class="text-white font-display fw-bold animate-fade-up delay-2 mb-3"
         style="font-size:clamp(36px,6vw,68px);line-height:1.1;opacity:0">
-      Encontre o melhor de<br/> <em class="fst-italic text-gold">Campo Belo</em> e <em class="fst-italic text-gold">Região</em>
+      Encontre o melhor do<br/> <em class="fst-italic text-gold">Campo Belo</em> e <em class="fst-italic text-gold">Região</em>
     </h1>
 
     <p class="animate-fade-up delay-3 mb-5 mx-auto"

@@ -255,12 +255,15 @@ a { text-decoration: none; }
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 1px 0 rgba(61,71,51,.09), 0 2px 12px rgba(29,29,27,.07);
 }
-.header-scrolled #header-bar .header-inner { height: 64px; }
+.header-scrolled #header-bar .header-inner { height: 76px; }
 .header-scrolled .nav-link-gcb { color: var(--gcb-graphite) !important; }
 .header-scrolled .nav-link-gcb:hover { color: var(--gcb-green) !important; }
 .header-scrolled #header-search-icon { color: var(--gcb-green) !important; border-color: rgba(61,71,51,.2) !important; }
 .header-scrolled #mobile-menu-btn   { color: var(--gcb-green) !important; border-color: rgba(61,71,51,.2) !important; }
-
+.header-scrolled #header-logo { height: 52px; }
+.header-scrolled #header-logo-link {
+  padding: 14px 0 !important;
+}
 /* Header search pill */
 #header-pill {
   display: flex;

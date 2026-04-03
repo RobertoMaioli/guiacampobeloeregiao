@@ -23,9 +23,11 @@ if ($_logado) {
       <div class="header-inner">
 
         <!-- ── Logo ── -->
-        <a href="/" class="d-flex align-items-center text-decoration-none flex-shrink-0"
+        <a id="header-logo-link" href="/" class="d-flex align-items-center text-decoration-none flex-shrink-0"
+           style="padding: 8px 0;"
            aria-label="Guia Campo Belo">
-          <img src="/assets/img/logo.png" alt="Guia Campo Belo" style="height:70px">
+          <img id="header-logo" src="/assets/img/logo.png" alt="Guia Campo Belo"
+               style="height:65px; transition: height .3s ease;">
         </a>
 
         <!-- ── Nav desktop ── -->

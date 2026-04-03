@@ -174,83 +174,571 @@ $canonical  = 'https://guiacampobeloeregiao.com.br';
     <!--  </span>-->
     <!--</div>-->
 
-    <div class="row g-4 justify-content-center">
-      <?php
-      $planos = [
-        ['nome'=>'Essencial','slug'=>'essencial','desc'=>'Para começar a aparecer','preco_m'=>'Grátis','preco_a'=>'Grátis','sfx_m'=>'','sfx_a'=>'',
-         'featured'=>false,'cta'=>'Anunciar agora','features'=>[
-          [true,'Página da empresa'],[true,'Nome, endereço e contato'],[true,'Horários de funcionamento'],[true,'Descrição da Empresa'],[false,'Imagem de Capa'], [false,'Até 3 tags'],
-          [false,'Destaque nas buscas'],[false,'Pin no mapa interativo'],[false,'Galeria de imagens ilimitada'],[false,'Sincronização Google'],
-        ]],
-        ['nome'=>'Profissional','slug'=>'profissional','desc'=>'Para quem quer ser encontrado','preco_m'=>'R$ 89','preco_a'=>'R$ 71','sfx_m'=>'/mês','sfx_a'=>'/mês',
-         'featured'=>true,'cta'=>'Anunciar agora','features'=>[
-          [true,'Tudo do Essencial'],[true,'Imagem de Capa'],[true,'5 Imagens na galeria'],[true,'Até 5 tags'],[true,'Pin no mapa interativo'],
-          [true,'Sincronização Google Reviews'],[true,'Link do Site'],[true,'Botão WhatsApp direto'],[true,'Links de redes sociais'],[true,'Formulário de Contato'],
-          [false,'Selo Destaque na listagem']
-        ]],
-        ['nome'=>'Premium','slug'=>'premium','desc'=>'Para líderes de categoria','preco_m'=>'','preco_a'=>'R$ 151','sfx_m'=>'','sfx_a'=>'',
-         'featured'=>false,'cta'=>'Anunciar agora','features'=>[
-          [true,'Tudo do Profissional'],[true,'Imagens ilimitadas'],[true,'Tags Ilimitadas'],[true,'Selo "Destaque" na listagem'],
-          [true,'Sem Propagandas'],
-          [true,'Gestão pela nossa equipe'],[true,'Suporte prioritário']
-        ]],
-      ];
-      foreach ($planos as $p):
-          if ($p['slug'] !== 'premium') continue;
-        ?>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="plan-card h-100 <?= $p['featured']?'featured':'' ?>">
-          <?php if ($p['featured']): ?>
-          <div class="position-relative">
-            <span class="badge-gold position-absolute top-0 end-0 m-4">Mais popular</span>
-          </div>
-          <?php endif; ?>
-          <div class="p-4 pb-3" style="border-bottom:1px solid <?= $p['featured']?'rgba(255,255,255,.1)':'rgba(61,71,51,.07)' ?>;background:<?= $p['featured']?'var(--gcb-green-dark)':'#fff' ?>">
-            <h3 class="font-display fw-bold mb-1" style="color:<?= $p['featured']?'#fff':'var(--gcb-green-dark)' ?>;font-size:22px"><?= $p['nome'] ?></h3>
-            <p class="mb-4" style="font-size:13px;color:<?= $p['featured']?'rgba(255,255,255,.45)':'var(--gcb-warmgray)' ?>"><?= $p['desc'] ?></p>
-            <div class="plan-price-mensal">
-              <div class="d-flex align-items-end gap-1">
-                <span class="font-display fw-bold" style="font-size:42px;line-height:1;color:<?= $p['featured']?'#fff':'var(--gcb-green-dark)' ?>"><?= $p['preco_m'] ?></span>
-                <?php if ($p['sfx_m']): ?><span style="font-size:13px;font-weight:600;padding-bottom:6px;color:<?= $p['featured']?'rgba(255,255,255,.4)':'var(--gcb-warmgray)' ?>"><?= $p['sfx_m'] ?></span><?php endif; ?>
+
+<style>
+/* ── Reset mínimo ── */
+.gcb-pricing * { box-sizing: border-box; }
+.gcb-pricing { font-family: 'Montserrat', sans-serif; }
+
+/* ── Variáveis ── */
+.gcb-pricing {
+  --green-dk:  #2a3022;
+  --green:     #3d4733;
+  --gold:      #c9aa6b;
+  --gold-pale: #f7f2e8;
+  --cream:     #faf8f3;
+  --offwhite:  #f2efe8;
+  --graphite:  #1d1d1b;
+  --warmgray:  #6b6566;
+  --border:    rgba(61,71,51,.10);
+  --pro-bg:    #f0f5eb;
+  --pro-head:  #2a3022;
+
+  --font-base:    18px;   /* mínimo desktop */
+  --font-sm:      15px;
+  --font-xs:      13px;
+  --icon-size:    22px;
+  --row-pad:      14px 20px;
+  --check-color:  #2a6e2a;
+  --dash-color:   #aaa;
+  --radius:       20px;
+}
+
+/* ── Legenda ── */
+.gcb-pricing .pricing-legend {
+  text-align: center;
+  font-size: var(--font-sm);
+  color: var(--warmgray);
+  margin-bottom: 32px;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+.gcb-pricing .pricing-legend strong { color: var(--graphite); }
+
+/* ── Wrapper scroll horizontal ── */
+.gcb-pricing .table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 40px rgba(29,29,27,.08);
+}
+
+/* ── Tabela ── */
+.gcb-pricing table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* ── Cabeçalho sticky ── */
+.gcb-pricing thead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.gcb-pricing thead tr {
+  background: #fff;
+  box-shadow: 0 2px 0 var(--border);
+}
+
+/* ── Células gerais ── */
+.gcb-pricing th,
+.gcb-pricing td {
+  padding: var(--row-pad);
+  text-align: center;
+  font-size: var(--font-base);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Coluna de recurso: alinhada à esquerda */
+.gcb-pricing td.feat-name,
+.gcb-pricing th.feat-name {
+  text-align: left;
+  font-weight: 600;
+  color: var(--graphite);
+  white-space: nowrap;
+  min-width: 240px;
+}
+
+/* ── Coluna PROFISSIONAL (destaque) ── */
+.gcb-pricing .col-pro {
+  background: var(--pro-bg);
+}
+.gcb-pricing thead .col-pro {
+  background: var(--pro-head);
+}
+
+/* ── Cabeçalho de plano ── */
+.gcb-pricing .plan-head {
+  padding: 28px 20px 24px;
+}
+.gcb-pricing .plan-badge {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--green-dk);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+.gcb-pricing .plan-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--green-dk);
+  margin: 0 0 4px;
+  line-height: 1.1;
+}
+.gcb-pricing thead .col-pro .plan-name {
+  color: #fff;
+}
+.gcb-pricing .plan-desc {
+  font-size: var(--font-xs);
+  color: var(--warmgray);
+  margin: 0 0 16px;
+  font-weight: 400;
+}
+.gcb-pricing thead .col-pro .plan-desc {
+  color: rgba(255,255,255,.55);
+}
+.gcb-pricing .plan-price {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--green-dk);
+  line-height: 1;
+}
+.gcb-pricing thead .col-pro .plan-price {
+  color: #fff;
+}
+.gcb-pricing .plan-price sup {
+  font-size: 18px;
+  font-weight: 700;
+  vertical-align: super;
+  line-height: 1;
+}
+.gcb-pricing .plan-period {
+  font-size: var(--font-xs);
+  color: var(--warmgray);
+  font-weight: 500;
+  margin-top: 4px;
+}
+.gcb-pricing thead .col-pro .plan-period {
+  color: rgba(255,255,255,.45);
+}
+
+/* Preços anuais - ocultos por padrão (toggle futuro) */
+.gcb-pricing .preco-anual { display: none; }
+/* .gcb-pricing .preco-mensal { display: none; }  ← descomentar ao ativar toggle */
+
+/* ── Botões CTA ── */
+.gcb-pricing .btn-plan {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px 10px;
+  border-radius: 999px;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity .2s, transform .15s;
+}
+.gcb-pricing .btn-plan:hover {
+  opacity: .88;
+  transform: translateY(-1px);
+}
+.gcb-pricing .btn-essencial {
+  background: transparent;
+  border: 2px solid var(--green-dk);
+  color: var(--green-dk);
+}
+.gcb-pricing .btn-pro {
+  background: var(--gold);
+  color: var(--green-dk);
+  box-shadow: 0 6px 20px rgba(201,170,107,.35);
+}
+.gcb-pricing .btn-premium {
+  background: var(--green-dk);
+  color: #fff;
+}
+
+/* ── Ícones ✓ e — ── */
+.gcb-pricing .ic {
+  font-size: var(--icon-size);
+  font-weight: 700;
+  display: inline-block;
+  line-height: 1;
+}
+.gcb-pricing .ic-yes {
+  color: var(--check-color);
+  font-size: 20px;
+}
+.gcb-pricing .ic-yes::before { content: "✓"; }
+.gcb-pricing .ic-no {
+  color: var(--dash-color);
+  font-size: 20px;
+}
+.gcb-pricing .ic-no::before  { content: "—"; }
+
+/* Texto de detalhe (ex: "5 imagens") */
+.gcb-pricing .feat-detail {
+  display: block;
+  font-size: var(--font-xs);
+  color: var(--warmgray);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── Linhas zebra ── */
+.gcb-pricing tbody tr:nth-child(even) td { background: var(--cream); }
+.gcb-pricing tbody tr:nth-child(even) td.col-pro { background: #e8efdf; }
+
+/* ── Cabeçalho de seção ── */
+.gcb-pricing .section-head td {
+  background: var(--offwhite) !important;
+  padding: 12px 20px;
+  font-size: var(--font-xs);
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--green);
+  border-top: 2px solid var(--border);
+  text-align: left;
+}
+.gcb-pricing .section-head td[colspan] {
+  /* span toda a largura */
+}
+
+/* ── Rodapé ── */
+.gcb-pricing .pricing-footer {
+  text-align: center;
+  font-size: var(--font-xs);
+  color: var(--warmgray);
+  margin-top: 20px;
+  font-weight: 500;
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .gcb-pricing {
+    --font-base: 16px;
+    --font-sm:   14px;
+    --font-xs:   12px;
+    --row-pad:   11px 14px;
+    --icon-size: 20px;
+  }
+  .gcb-pricing .plan-price { font-size: 32px; }
+  .gcb-pricing td.feat-name { min-width: 170px; }
+  .gcb-pricing .btn-plan { font-size: 11px; padding: 12px 8px; }
+  .gcb-pricing .table-scroll {
+    /* dica visual de scroll */
+    background: linear-gradient(to right, #fff 30%, rgba(255,255,255,0)),
+                linear-gradient(to right, rgba(255,255,255,0), #fff 70%) 100% 0,
+                radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.07), transparent),
+                radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.07), transparent) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+}
+</style>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  BLOCO PRINCIPAL                           -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="gcb-pricing">
+
+  <!-- Legenda de acessibilidade -->
+  <p class="pricing-legend">
+    <strong>✓</strong> = incluído &nbsp;&nbsp;|&nbsp;&nbsp; <strong>—</strong> = não incluído neste plano
+  </p>
+
+  <!-- TOGGLE MENSAL/ANUAL (futuro — descomentar para ativar)
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px">
+    <span id="lbl-mensal" style="font-size:15px;font-weight:700;color:var(--graphite)">Mensal</span>
+    <button id="toggle-periodo" onclick="togglePeriodo()"
+            style="position:relative;width:52px;height:28px;border-radius:999px;
+                   border:none;cursor:pointer;background:var(--green-dk);padding:0">
+      <span id="toggle-knob"
+            style="position:absolute;top:4px;left:4px;width:20px;height:20px;
+                   border-radius:50%;background:var(--gold);transition:left .2s"></span>
+    </button>
+    <span id="lbl-anual" style="font-size:15px;font-weight:600;color:var(--warmgray)">
+      Anual <span style="background:var(--gold);color:var(--green-dk);font-size:10px;
+                         font-weight:900;padding:2px 8px;border-radius:999px;margin-left:4px">-20%</span>
+    </span>
+  </div>
+  <script>
+  function togglePeriodo() {
+    const mensal = document.querySelectorAll('.preco-mensal');
+    const anual  = document.querySelectorAll('.preco-anual');
+    const knob   = document.getElementById('toggle-knob');
+    const isAnual = knob.style.left === '28px';
+    knob.style.left = isAnual ? '4px' : '28px';
+    mensal.forEach(el => el.style.display = isAnual ? '' : 'none');
+    anual.forEach(el  => el.style.display = isAnual ? 'none' : '');
+    document.getElementById('lbl-mensal').style.color = isAnual ? 'var(--graphite)' : 'var(--warmgray)';
+    document.getElementById('lbl-anual').style.color  = isAnual ? 'var(--warmgray)' : 'var(--graphite)';
+  }
+  </script>
+  -->
+
+  <div class="table-scroll">
+    <table>
+
+      <!-- ══ CABEÇALHO ══ -->
+      <thead>
+        <tr>
+          <!-- Coluna de recurso (vazia no head) -->
+          <th class="feat-name" scope="col" style="background:#fff;border-bottom:1px solid var(--border)">
+            <span style="font-size:13px;font-weight:700;color:var(--warmgray);letter-spacing:.08em;text-transform:uppercase">Recurso</span>
+          </th>
+
+          <!-- Essencial -->
+          <th scope="col" style="background:#fff;border-bottom:1px solid var(--border)">
+            <div class="plan-head">
+              <p class="plan-name">Essencial</p>
+              <p class="plan-desc">Para começar a aparecer</p>
+              <div class="preco-mensal">
+                <p class="plan-price">Grátis</p>
+                <p class="plan-period">para sempre</p>
               </div>
-            </div>
-            <div class="plan-price-anual">
-              <div class="d-flex align-items-end gap-1">
-                <span class="font-display fw-bold" style="font-size:42px;line-height:1;color:<?= $p['featured']?'#fff':'var(--gcb-green-dark)' ?>"><?= $p['preco_a'] ?></span>
-                <?php if ($p['sfx_a']): ?><span style="font-size:13px;font-weight:600;padding-bottom:6px;color:<?= $p['featured']?'rgba(255,255,255,.4)':'var(--gcb-warmgray)' ?>"><?= $p['sfx_a'] ?></span><?php endif; ?>
+              <div class="preco-anual">
+                <p class="plan-price">Grátis</p>
+                <p class="plan-period">para sempre</p>
               </div>
-              <?php if ($p['preco_a']!=='Grátis'): ?><p style="font-size:11px;color:<?= $p['featured']?'rgba(255,255,255,.35)':'var(--gcb-warmgray)' ?>" class="mt-1 mb-0">cobrado anualmente</p><?php endif; ?>
+              <a href="/empresa/cadastro.php?plan=essencial" class="btn-plan btn-essencial">
+                Cadastrar grátis
+              </a>
             </div>
-          </div>
-          <div class="p-4 flex-fill" style="background:<?= $p['featured']?'var(--gcb-green-dark)':'#fff' ?>">
-            <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
-              <?php foreach ($p['features'] as $f): ?>
-              <li class="d-flex align-items-start gap-2" style="font-size:13px;color:<?= $p['featured']?($f[0]?'rgba(255,255,255,.8)':'rgba(255,255,255,.25)'):($f[0]?'var(--gcb-graphite)':'rgba(139,133,137,.4)') ?>">
-                <?php if ($f[0]): ?>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="<?= $p['featured']?'#c9aa6b':'#3d4733' ?>" stroke-width="2.5" stroke-linecap="round" class="flex-shrink-0 mt-1"><polyline points="20 6 9 17 4 12"/></svg>
-                <?php else: ?>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="flex-shrink-0 mt-1 opacity-50"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                <?php endif; ?>
-                <?= htmlspecialchars($f[1]) ?>
-              </li>
-              <?php endforeach; ?>
-            </ul>
-          </div>
-          <div class="p-4" style="background:<?= $p['featured']?'var(--gcb-green-dark)':'#fff' ?>">
-            <a href="/empresa/cadastro.php?plan=<?= $p['slug'] ?>"
-               class="d-flex align-items-center justify-content-center gap-2 py-3 rounded-pill text-decoration-none w-100"
-               style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-                      <?= $p['featured']?'background:var(--gcb-gold);color:var(--gcb-green-dark);box-shadow:0 8px 24px rgba(201,170,107,.3)':'background:var(--gcb-green-dark);color:#fff' ?>">
-              <?= htmlspecialchars($p['cta']) ?> <?= icon('arrow-right',13) ?>
+          </th>
+
+          <!-- Profissional (destaque) -->
+          <th scope="col" class="col-pro">
+            <div class="plan-head">
+              <span class="plan-badge">⭐ Mais popular</span>
+              <p class="plan-name">Profissional</p>
+              <p class="plan-desc">Para quem quer ser encontrado</p>
+              <div class="preco-mensal">
+                <p class="plan-price"><sup>R$</sup>89</p>
+                <p class="plan-period">/mês · sem fidelidade</p>
+              </div>
+              <div class="preco-anual">
+                <p class="plan-price"><sup>R$</sup>71</p>
+                <p class="plan-period">/mês · cobrado anualmente</p>
+              </div>
+              <a href="/empresa/cadastro.php?plan=profissional" class="btn-plan btn-pro">
+                Assinar Profissional
+              </a>
+            </div>
+          </th>
+
+          <!-- Premium -->
+          <th scope="col" style="background:#fff;border-bottom:1px solid var(--border)">
+            <div class="plan-head">
+              <p class="plan-name">Premium</p>
+              <p class="plan-desc">Para líderes de categoria</p>
+              <div class="preco-mensal">
+                <p class="plan-price"><sup>R$</sup>159</p>
+                <p class="plan-period">/mês · sem fidelidade</p>
+              </div>
+              <div class="preco-anual">
+                <p class="plan-price"><sup>R$</sup>127</p>
+                <p class="plan-period">/mês · cobrado anualmente</p>
+              </div>
+              <a href="/empresa/cadastro.php?plan=premium" class="btn-plan btn-premium">
+                Assinar Premium
+              </a>
+            </div>
+          </th>
+        </tr>
+      </thead>
+
+      <!-- ══ CORPO ══ -->
+      <tbody>
+
+        <!-- ── SEÇÃO: BÁSICO ── -->
+        <tr class="section-head">
+          <td colspan="4">📋 Básico</td>
+        </tr>
+        <tr>
+          <td class="feat-name">Página da empresa no site</td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Nome, endereço e contato</td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Horários de funcionamento</td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Descrição da empresa</td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+
+        <!-- ── SEÇÃO: VISUAL / GALERIA ── -->
+        <tr class="section-head">
+          <td colspan="4">🖼️ Visual e Galeria</td>
+        </tr>
+        <tr>
+          <td class="feat-name">Imagem de capa</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Galeria de imagens</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro">
+            <span class="ic ic-yes" aria-label="Incluído"></span>
+            <span class="feat-detail">até 5 imagens</span>
+          </td>
+          <td>
+            <span class="ic ic-yes" aria-label="Incluído"></span>
+            <span class="feat-detail">ilimitadas</span>
+          </td>
+        </tr>
+
+        <!-- ── SEÇÃO: TAGS ── -->
+        <tr class="section-head">
+          <td colspan="4">🏷️ Tags</td>
+        </tr>
+        <tr>
+          <td class="feat-name">Tags de categoria</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro">
+            <span class="ic ic-yes" aria-label="Incluído"></span>
+            <span class="feat-detail">até 5 tags</span>
+          </td>
+          <td>
+            <span class="ic ic-yes" aria-label="Incluído"></span>
+            <span class="feat-detail">ilimitadas</span>
+          </td>
+        </tr>
+
+        <!-- ── SEÇÃO: MAPA E BUSCA ── -->
+        <tr class="section-head">
+          <td colspan="4">📍 Mapa e Busca</td>
+        </tr>
+        <tr>
+          <td class="feat-name">Pin no mapa interativo</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+
+        <!-- ── SEÇÃO: CREDIBILIDADE ── -->
+        <tr class="section-head">
+          <td colspan="4">⭐ Credibilidade</td>
+        </tr>
+        <tr>
+          <td class="feat-name">Sincronização Google Reviews</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Selo "Destaque" na listagem</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Sem anúncios de concorrentes</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+
+        <!-- ── SEÇÃO: CONTATO ── -->
+        <tr class="section-head">
+          <td colspan="4">📞 Contato</td>
+        </tr>
+        <tr>
+          <td class="feat-name">Link do site</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Botão WhatsApp direto</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Links de redes sociais</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-yes" aria-label="Incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+       
+
+        <!-- ── SEÇÃO: EXPERIÊNCIA PREMIUM ── -->
+        <tr class="section-head">
+          <td colspan="4">💎 Experiência Premium</td>
+        </tr>
+        <tr>
+          <td class="feat-name">Gestão pela nossa equipe</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+        <tr>
+          <td class="feat-name">Suporte prioritário</td>
+          <td><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td class="col-pro"><span class="ic ic-no" aria-label="Não incluído"></span></td>
+          <td><span class="ic ic-yes" aria-label="Incluído"></span></td>
+        </tr>
+
+        <!-- ── Linha de CTA repetida no fundo (boa prática UX) ── -->
+        <tr>
+          <td class="feat-name" style="border-bottom:none"></td>
+          <td style="padding:24px 20px;border-bottom:none">
+            <a href="/empresa/cadastro.php?plan=essencial" class="btn-plan btn-essencial">
+              Cadastrar grátis
             </a>
-          </div>
-        </div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <p class="text-center mt-4" style="font-size:12.5px;color:var(--gcb-warmgray)">
-      Todos os planos incluem suporte via WhatsApp. Não há fidelidade mínima.
-    </p>
+          </td>
+          <td class="col-pro" style="padding:24px 20px;border-bottom:none">
+            <a href="/empresa/cadastro.php?plan=profissional" class="btn-plan btn-pro">
+              Assinar Profissional
+            </a>
+          </td>
+          <td style="padding:24px 20px;border-bottom:none">
+            <a href="/empresa/cadastro.php?plan=premium" class="btn-plan btn-premium">
+              Assinar Premium
+            </a>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div><!-- /table-scroll -->
+
+
+</div><!-- /gcb-pricing -->
   </div>
 </section>
 

@@ -24,6 +24,6 @@ $canonical  = $canonical  ?? 'https://guiacampobeloeregiao.com.br/';
 <!-- Bootstrap 5.3 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"/>
 <!-- Guia Campo Belo CSS -->
-<link rel="stylesheet" href="/assets/css/gcb.css?v1.2.9"/>
+<link rel="stylesheet" href="/assets/css/gcb.css?v1.3.3"/>
 <link rel="stylesheet" href="/assets/css/header-user.css">
 <link rel="icon" type="image/png" href="/assets/img/logo.png">

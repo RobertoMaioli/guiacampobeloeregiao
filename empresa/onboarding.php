@@ -291,7 +291,7 @@ body{background:var(--gcb-offwhite)}
     <div class="card-ttl">
       <?= icon('grid',17) ?> Fotos
       <span style="font-size:10px;color:var(--gcb-warmgray);font-weight:500">
-        <?php if($plan==='essencial'):?>até 1<?php elseif($plan==='profissional'):?>até 5<?php else:?>ilimitadas<?php endif;?>
+        <?php if($plan==='essencial'):?>não disponível<?php elseif($plan==='profissional'):?>até 5<?php else:?>ilimitadas<?php endif;?>
       </span>
     </div>
     <?php if(!empty($fotos_atuais)): ?>
@@ -301,6 +301,7 @@ body{background:var(--gcb-offwhite)}
       <?php endforeach; ?>
     </div>
     <?php endif; ?>
+    <?php if($plan !== 'essencial'): ?>
     <label class="foto-zone">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gcb-gold)"
            stroke-width="1.5" stroke-linecap="round">
@@ -313,6 +314,15 @@ body{background:var(--gcb-offwhite)}
       <input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/webp"
              class="d-none" onchange="handleFotos(this)">
     </label>
+    <?php else: ?>
+    <div style="padding:16px;background:var(--gcb-offwhite);border-radius:12px;
+                border:1.5px dashed rgba(61,71,51,.15);text-align:center">
+      <p style="font-size:13px;color:var(--gcb-warmgray);margin:0">
+        📷 Fotos disponíveis a partir do plano <strong style="color:var(--gcb-green-dark)">Profissional</strong>.
+        <a href="/pages/anuncie.php" style="color:var(--gcb-gold);font-weight:700">Ver planos</a>
+      </p>
+    </div>
+    <?php endif; ?>
     <div class="foto-grid" id="foto-preview"></div>
   </div>
 
@@ -367,7 +377,7 @@ const CSRF       = '<?= Sanitize::html($csrf) ?>';
 const EMP_ID     = <?= $empresa_id ?>;
 const LUGAR_DB   = <?= $lugar_id ?>;
 const PLAN       = '<?= $plan ?>';
-const MAX_FOTOS  = PLAN==='premium'?999:PLAN==='profissional'?5:1;
+const MAX_FOTOS  = PLAN==='premium'?999:PLAN==='profissional'?5:0;
 const JA_FOTOS   = <?= count($fotos_atuais) ?>;
 
 let cur=0, lugarId=LUGAR_DB, fotoFiles=[], debouce=null;

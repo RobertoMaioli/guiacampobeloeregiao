@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <!-- ══ FOTOS ══ -->
   <div class="section-hdr" id="fotos" style="margin-top:28px"><?= icon('grid',14) ?> Fotos</div>
 
-  <?php if (!$feat['max_fotos'] || $feat['max_fotos'] <= 1): ?>
+  <?php if (!$feat['max_fotos'] || $feat['max_fotos'] < 1): ?>
   <div class="plan-lock-banner">
     <?= icon('award',16) ?>
     <div>Seu plano permite apenas 1 foto. <a href="/empresa/plano.php" style="color:var(--gcb-green-dark);font-weight:700">Faça upgrade</a> para adicionar mais.</div>

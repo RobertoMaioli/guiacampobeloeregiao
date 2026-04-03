@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/../core/UserAuth.php';
 require_once __DIR__ . '/../core/Sanitize.php';
+require_once __DIR__ . '/../core/RateLimit.php';
 
 UserAuth::start();
 
@@ -23,12 +24,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $email = Sanitize::post('email', 'email');
         $senha = $_POST['senha'] ?? '';
+        $ip    = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 
-        if (!$email || $senha === '') {
+        // ── Rate limit: 5 tentativas por IP em 60 s; bloqueia por 5 min ──
+        if (!RateLimit::allow('login', $ip, 5, 60, 300)) {
+            $restam = RateLimit::segundosRestantes('login', $ip);
+            $mins   = ceil($restam / 60);
+            $erro   = "Muitas tentativas incorretas. Tente novamente em {$mins} minuto(s).";
+
+        } elseif (!$email || $senha === '') {
             $erro = 'Preencha e-mail e senha.';
+
         } elseif (!UserAuth::login($email, $senha)) {
             $erro = 'E-mail ou senha incorretos.';
+
         } else {
+            // Login OK — reseta o contador e redireciona
+            RateLimit::reset('login', $ip);
             header('Location: ' . UserAuth::intendedUrl('/empresa/dashboard'));
             exit;
         }
