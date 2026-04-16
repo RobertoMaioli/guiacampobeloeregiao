@@ -114,10 +114,10 @@ $page_title = 'Status do cadastro — Guia Campo Belo';
     </div>
 
     <?php if ($status === 'pendente'): ?>
-    <a href="/empresa/onboarding.php"
-       class="btn-header-outline d-flex align-items-center justify-content-center gap-2 py-3 mb-3">
-      Editar dados enquanto aguarda
-    </a>
+    <!--<a href="/empresa/onboarding.php"-->
+    <!--   class="btn-header-outline d-flex align-items-center justify-content-center gap-2 py-3 mb-3">-->
+    <!--  Editar dados enquanto aguarda-->
+    <!--</a>-->
     <?php endif; ?>
 
     <a href="/" style="display:flex;align-items:center;justify-content:center;gap:5px;
