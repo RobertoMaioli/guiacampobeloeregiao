@@ -8,7 +8,6 @@ Auth::require();
 $page_title = 'Categorias';
 $erros = [];
 
-/* ── POST: criar / editar / reordenar ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!Sanitize::csrfValid($_POST['_token'] ?? '')) {
         $erros[] = 'Token inválido.';
@@ -23,8 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ordem = Sanitize::post('ordem', 'int');
             $ativo = Sanitize::post('ativo', 'bool') ? 1 : 0;
 
-            if ($label === '') { $erros[] = 'Nome obrigatório.'; }
-            else {
+            if ($label === '') {
+                $erros[] = 'Nome obrigatório.';
+            } else {
                 if ($cid > 0) {
                     DB::exec(
                         'UPDATE categorias SET label=?, slug=?, icon=?, ordem=?, ativo=? WHERE id=?',
@@ -51,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $categorias = DB::query('SELECT * FROM categorias ORDER BY ordem, label');
 
-/* Conta lugares por categoria */
 $counts = [];
 foreach (DB::query('SELECT categoria_id, COUNT(*) n FROM lugares WHERE ativo=1 GROUP BY categoria_id') as $r) {
     $counts[$r['categoria_id']] = $r['n'];
@@ -63,139 +62,265 @@ $icons_disponiveis = [
     'map','navigation','trending-up','grid','award','briefcase',
 ];
 
-/* Edição inline */
-$edit_id = Sanitize::get('edit', 'int', 0);
+$edit_id  = Sanitize::get('edit', 'int', 0);
 $edit_cat = $edit_id ? DB::row('SELECT * FROM categorias WHERE id=?', [$edit_id]) : null;
 
 include __DIR__ . '/../_layout.php';
 ?>
 
-<!-- Form nova / editar -->
-<div class="bg-white rounded-2xl border border-green/[0.07] p-6 mb-6">
-  <h3 class="font-display text-[16px] font-bold text-green-dark mb-5">
-    <?= $edit_cat ? 'Editar categoria' : 'Nova categoria' ?>
-  </h3>
+<style>
+    /* ── Form card ── */
+    .form-card {
+        background: #fff;
+        border: 1px solid rgba(61,71,51,.07);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        margin-bottom: 1.5rem;
+    }
+    .form-card-title {
+        font-size: 1rem; font-weight: 700;
+        color: var(--green-dk); margin: 0 0 1.25rem;
+    }
 
-  <?php if (!empty($erros)): ?>
-  <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-[13px] text-red-600">
-    <?= Sanitize::html(implode(' ', $erros)) ?>
-  </div>
-  <?php endif; ?>
+    .form-label-admin {
+        display: block;
+        font-size: .625rem; font-weight: 900;
+        letter-spacing: .18em; text-transform: uppercase;
+        color: var(--warmgray); margin-bottom: .375rem;
+    }
+    .form-field {
+        width: 100%;
+        padding: .625rem 1rem;
+        background: var(--offwhite);
+        border: 1px solid rgba(61,71,51,.1);
+        border-radius: .75rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: .84375rem; color: var(--graphite);
+        outline: none; transition: border-color .2s;
+    }
+    .form-field:focus { border-color: rgba(201,170,107,.5); }
 
-  <form method="POST" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-    <input type="hidden" name="_token" value="<?= Sanitize::html(Sanitize::csrfToken()) ?>"/>
-    <input type="hidden" name="action" value="save"/>
-    <input type="hidden" name="id"     value="<?= (int)($edit_cat['id'] ?? 0) ?>"/>
+    .btn-submit {
+        width: 100%; padding: .625rem 1rem;
+        background: var(--green-dk); color: #fff;
+        font-size: .75rem; font-weight: 900;
+        letter-spacing: .1em; text-transform: uppercase;
+        border: none; border-radius: .75rem;
+        cursor: pointer; transition: background .2s;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .btn-submit:hover { background: var(--green); }
 
-    <div>
-      <label class="block text-[10px] font-black tracking-[0.18em] uppercase text-warmgray mb-1.5">
-        Nome *
-      </label>
-      <input type="text" name="label" required
-             value="<?= Sanitize::html($edit_cat['label'] ?? '') ?>"
-             class="w-full px-4 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
-                    text-[13.5px] outline-none focus:border-gold/50 transition-colors"/>
-    </div>
+    .cancel-link {
+        display: inline-block; margin-top: .75rem;
+        font-size: .6875rem; font-weight: 700;
+        color: var(--warmgray); text-decoration: none;
+        transition: color .2s;
+    }
+    .cancel-link:hover { color: var(--gold); }
 
-    <div>
-      <label class="block text-[10px] font-black tracking-[0.18em] uppercase text-warmgray mb-1.5">
-        Ícone
-      </label>
-      <select name="icon"
-              class="w-full px-4 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
-                     text-[13.5px] outline-none focus:border-gold/50 transition-colors cursor-pointer">
-        <?php foreach ($icons_disponiveis as $ic): ?>
-        <option value="<?= $ic ?>" <?= ($edit_cat['icon'] ?? '') === $ic ? 'selected' : '' ?>>
-          <?= $ic ?>
-        </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
+    /* ── Error box ── */
+    .error-inline {
+        background: #fef2f2; border: 1px solid #fecaca;
+        border-radius: .75rem; padding: .75rem 1rem;
+        margin-bottom: 1rem;
+        font-size: .8125rem; color: #dc2626;
+    }
 
-    <div class="grid grid-cols-2 gap-2">
-      <div>
-        <label class="block text-[10px] font-black tracking-[0.18em] uppercase text-warmgray mb-1.5">
-          Ordem
-        </label>
-        <input type="number" name="ordem" min="0"
-               value="<?= (int)($edit_cat['ordem'] ?? 0) ?>"
-               class="w-full px-4 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
-                      text-[13.5px] outline-none focus:border-gold/50 transition-colors"/>
-      </div>
-      <div class="flex flex-col justify-end">
-        <button type="submit"
-                class="py-2.5 bg-green-dark hover:bg-green text-white text-[12px]
-                       font-black tracking-widest uppercase rounded-xl transition-colors">
-          <?= $edit_cat ? 'Salvar' : 'Criar' ?>
-        </button>
-      </div>
-    </div>
-  </form>
+    /* ── Table card ── */
+    .table-card {
+        background: #fff;
+        border: 1px solid rgba(61,71,51,.07);
+        border-radius: 1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        overflow: hidden;
+    }
 
-  <?php if ($edit_cat): ?>
-  <a href="/admin/categorias"
-     class="inline-block mt-3 text-[11px] font-bold text-warmgray hover:text-gold transition-colors">
-    ← Cancelar edição
-  </a>
-  <?php endif; ?>
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table thead tr {
+        background: rgba(242,240,235,.6);
+        border-bottom: 1px solid var(--offwhite);
+    }
+    .data-table thead th {
+        padding: .875rem 1.25rem;
+        font-size: .625rem; font-weight: 900;
+        letter-spacing: .14em; text-transform: uppercase;
+        color: var(--warmgray);
+    }
+    .data-table thead th.th-left   { text-align: left; }
+    .data-table thead th.th-center { text-align: center; }
+    .data-table thead th.th-right  { text-align: right; }
+
+    .data-table tbody tr {
+        border-bottom: 1px solid var(--offwhite);
+        transition: background .15s;
+    }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table tbody tr:hover { background: rgba(242,240,235,.5); }
+
+    .data-table tbody td {
+        padding: .875rem 1.25rem;
+        vertical-align: middle;
+    }
+    .data-table tbody td.td-center { text-align: center; }
+    .data-table tbody td.td-right  { text-align: right; }
+
+    /* count badge */
+    .count-badge {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: var(--gold-pale); color: var(--green-dk);
+        font-size: .75rem; font-weight: 900;
+    }
+
+    /* toggle status button */
+    .btn-status {
+        padding: .2rem .75rem;
+        border: none; border-radius: 50px;
+        font-size: .625rem; font-weight: 900;
+        letter-spacing: .08em; text-transform: uppercase;
+        cursor: pointer; transition: background .2s;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .btn-status.on  { background: #f0fdf4; color: #16a34a; }
+    .btn-status.on:hover  { background: #dcfce7; }
+    .btn-status.off { background: #fef2f2; color: #ef4444; }
+    .btn-status.off:hover { background: #fee2e2; }
+
+    /* edit link */
+    .btn-edit {
+        font-size: .6875rem; font-weight: 700;
+        color: var(--gold); text-decoration: none;
+        transition: color .2s;
+    }
+    .btn-edit:hover { color: var(--gold-lt); }
+
+    /* icon monospace */
+    .icon-mono {
+        font-family: monospace; font-size: .75rem;
+        color: var(--warmgray);
+    }
+</style>
+
+<!-- ── Form nova / editar ── -->
+<div class="form-card">
+    <h3 class="form-card-title">
+        <?= $edit_cat ? 'Editar categoria' : 'Nova categoria' ?>
+    </h3>
+
+    <?php if (!empty($erros)): ?>
+    <div class="error-inline"><?= Sanitize::html(implode(' ', $erros)) ?></div>
+    <?php endif; ?>
+
+    <form method="POST">
+        <input type="hidden" name="_token" value="<?= Sanitize::html(Sanitize::csrfToken()) ?>"/>
+        <input type="hidden" name="action" value="save"/>
+        <input type="hidden" name="id"     value="<?= (int)($edit_cat['id'] ?? 0) ?>"/>
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-12 col-sm-4">
+                <label class="form-label-admin">Nome *</label>
+                <input type="text" name="label" required
+                       value="<?= Sanitize::html($edit_cat['label'] ?? '') ?>"
+                       class="form-field"/>
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <label class="form-label-admin">Ícone</label>
+                <select name="icon" class="form-field">
+                    <?php foreach ($icons_disponiveis as $ic): ?>
+                    <option value="<?= $ic ?>"
+                            <?= ($edit_cat['icon'] ?? '') === $ic ? 'selected' : '' ?>>
+                        <?= $ic ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="col-6 col-sm-2">
+                <label class="form-label-admin">Ordem</label>
+                <input type="number" name="ordem" min="0"
+                       value="<?= (int)($edit_cat['ordem'] ?? 0) ?>"
+                       class="form-field"/>
+            </div>
+
+            <div class="col-6 col-sm-2">
+                <button type="submit" class="btn-submit">
+                    <?= $edit_cat ? 'Salvar' : 'Criar' ?>
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+    <?php if ($edit_cat): ?>
+    <a href="/admin/categorias" class="cancel-link">← Cancelar edição</a>
+    <?php endif; ?>
 </div>
 
-<!-- Lista -->
-<div class="bg-white rounded-2xl border border-green/[0.07] shadow-sm overflow-hidden">
-  <table class="w-full">
-    <thead>
-      <tr class="text-[10px] font-black tracking-[0.14em] uppercase text-warmgray border-b border-offwhite bg-offwhite/60">
-        <th class="px-5 py-3.5 text-left">Categoria</th>
-        <th class="px-5 py-3.5 text-center hidden sm:table-cell">Ícone</th>
-        <th class="px-5 py-3.5 text-center hidden md:table-cell">Ordem</th>
-        <th class="px-5 py-3.5 text-center hidden md:table-cell">Lugares</th>
-        <th class="px-5 py-3.5 text-center">Status</th>
-        <th class="px-5 py-3.5 text-right">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($categorias as $cat): ?>
-      <tr class="border-b border-offwhite last:border-0 hover:bg-offwhite/50 transition-colors">
-        <td class="px-5 py-3.5">
-          <span class="font-semibold text-[13.5px] text-graphite"><?= Sanitize::html($cat['label']) ?></span>
-          <span class="block text-[11px] text-warmgray"><?= Sanitize::html($cat['slug']) ?></span>
-        </td>
-        <td class="px-5 py-3.5 text-center hidden sm:table-cell">
-          <span class="text-[12px] text-warmgray font-mono"><?= Sanitize::html($cat['icon']) ?></span>
-        </td>
-        <td class="px-5 py-3.5 text-center hidden md:table-cell">
-          <span class="text-[13px] font-bold text-graphite"><?= (int)$cat['ordem'] ?></span>
-        </td>
-        <td class="px-5 py-3.5 text-center hidden md:table-cell">
-          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full
-                       bg-gold-pale text-green-dark text-[12px] font-black">
-            <?= $counts[$cat['id']] ?? 0 ?>
-          </span>
-        </td>
-        <td class="px-5 py-3.5 text-center">
-          <form method="POST" style="display:inline">
-            <input type="hidden" name="_token"  value="<?= Sanitize::html(Sanitize::csrfToken()) ?>"/>
-            <input type="hidden" name="action"  value="toggle"/>
-            <input type="hidden" name="id"      value="<?= (int)$cat['id'] ?>"/>
-            <button type="submit"
-                    class="px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase
-                           transition-colors <?= $cat['ativo']
-                               ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
-                               : 'bg-red-50 text-red-500 hover:bg-red-100' ?>">
-              <?= $cat['ativo'] ? 'Ativo' : 'Inativo' ?>
-            </button>
-          </form>
-        </td>
-        <td class="px-5 py-3.5 text-right">
-          <a href="?edit=<?= (int)$cat['id'] ?>"
-             class="text-[11px] font-bold text-gold hover:text-gold-light transition-colors">
-            Editar
-          </a>
-        </td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
+<!-- ── Lista ── -->
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="th-left">Categoria</th>
+                    <th class="th-center d-none d-sm-table-cell">Ícone</th>
+                    <th class="th-center d-none d-md-table-cell">Ordem</th>
+                    <th class="th-center d-none d-md-table-cell">Lugares</th>
+                    <th class="th-center">Status</th>
+                    <th class="th-right">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($categorias as $cat): ?>
+                <tr>
+                    <td>
+                        <span style="font-size:.84375rem; font-weight:600; color:var(--graphite)">
+                            <?= Sanitize::html($cat['label']) ?>
+                        </span>
+                        <span style="display:block; font-size:.6875rem; color:var(--warmgray)">
+                            <?= Sanitize::html($cat['slug']) ?>
+                        </span>
+                    </td>
+
+                    <td class="td-center d-none d-sm-table-cell">
+                        <span class="icon-mono"><?= Sanitize::html($cat['icon']) ?></span>
+                    </td>
+
+                    <td class="td-center d-none d-md-table-cell">
+                        <span style="font-size:.8125rem; font-weight:700; color:var(--graphite)">
+                            <?= (int)$cat['ordem'] ?>
+                        </span>
+                    </td>
+
+                    <td class="td-center d-none d-md-table-cell">
+                        <span class="count-badge"><?= $counts[$cat['id']] ?? 0 ?></span>
+                    </td>
+
+                    <td class="td-center">
+                        <form method="POST" style="display:inline">
+                            <input type="hidden" name="_token" value="<?= Sanitize::html(Sanitize::csrfToken()) ?>"/>
+                            <input type="hidden" name="action" value="toggle"/>
+                            <input type="hidden" name="id"     value="<?= (int)$cat['id'] ?>"/>
+                            <button type="submit"
+                                    class="btn-status <?= $cat['ativo'] ? 'on' : 'off' ?>">
+                                <?= $cat['ativo'] ? 'Ativo' : 'Inativo' ?>
+                            </button>
+                        </form>
+                    </td>
+
+                    <td class="td-right">
+                        <a href="?edit=<?= (int)$cat['id'] ?>" class="btn-edit">Editar</a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <?php include __DIR__ . '/../_layout_end.php'; ?>

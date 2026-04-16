@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'method'  => 'POST',
                     'header'  => 'Content-Type: application/x-www-form-urlencoded',
                     'content' => http_build_query([
-                        'secret'   => '0x4AAAAAACzHCVgkYcexPpzay4BRYcHapUI',
+                        'secret'   => '0x4AAAAAAC-jyx9HkvIlwnbunU-So2xyHGU',
                         'response' => $turnstileToken,
                         'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
                     ]),
@@ -70,72 +70,171 @@ $csrf = Sanitize::csrfToken();
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin — Guia Campo Belo</title>
     <meta name="robots" content="noindex" />
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap"
-        rel="stylesheet" />
-    <link rel="icon" type="image/png" href="/assets/img/logo.png">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
     <!-- Cloudflare Turnstile -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-    <script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                fontFamily: {
-                    display: ['"Montserrat"', 'sans-serif'],
-                    body: ['Montserrat', 'sans-serif']
-                },
-                colors: {
-                    green: {
-                        DEFAULT: '#3d4733',
-                        dark: '#2a3022'
-                    },
-                    gold: {
-                        DEFAULT: '#c9aa6b',
-                        light: '#ddc48a',
-                        pale: '#f5edda'
-                    },
-                    cream: '#faf8f3',
-                    graphite: '#1d1d1b'
-                }
-            }
-        }
-    }
-    </script>
+    <link rel="icon" type="image/png" href="/assets/img/logo.png" />
+
     <style>
-    body { font-family: 'Montserrat', sans-serif; }
-    /* Centraliza o widget Turnstile */
-    .cf-turnstile { display: flex; justify-content: center; margin-bottom: 1.25rem; }
+        :root {
+            --color-green:    #3d4733;
+            --color-green-dk: #2a3022;
+            --color-gold:     #c9aa6b;
+            --color-gold-lt:  #ddc48a;
+            --color-cream:    #faf8f3;
+            --color-muted:    #8b8589;
+            --color-bg-input: #f2f0eb;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--color-green-dk) 0%, var(--color-green) 100%);
+        }
+
+        .login-wrap {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* ── Card ── */
+        .login-card {
+            background: var(--color-cream);
+            border: none;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .30);
+        }
+
+        .login-card .card-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-green-dk);
+            margin-bottom: .25rem;
+        }
+
+        .login-card .card-subtitle {
+            font-size: .8125rem;
+            color: var(--color-muted);
+            margin-bottom: 1.75rem;
+        }
+
+        /* ── Labels ── */
+        .login-card .form-label {
+            font-size: .625rem;
+            font-weight: 800;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+            margin-bottom: .5rem;
+        }
+
+        /* ── Inputs ── */
+        .login-card .form-control {
+            background: var(--color-bg-input);
+            border: 1px solid rgba(61, 71, 51, .10);
+            border-radius: .75rem;
+            font-size: .875rem;
+            padding: .75rem 1rem;
+            color: var(--color-green-dk);
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .login-card .form-control:focus {
+            background: var(--color-bg-input);
+            border-color: rgba(201, 170, 107, .60);
+            box-shadow: 0 0 0 .2rem rgba(201, 170, 107, .15);
+            color: var(--color-green-dk);
+            outline: none;
+        }
+
+        /* ── Turnstile ── */
+        .cf-turnstile {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+
+        /* ── Submit button ── */
+        .btn-login {
+            width: 100%;
+            padding: .875rem 1rem;
+            background: var(--color-green-dk);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            transition: background-color .2s;
+        }
+
+        .btn-login:hover,
+        .btn-login:focus {
+            background: var(--color-green);
+            color: #fff;
+        }
+
+        /* ── Error alert ── */
+        .alert-login {
+            display: flex;
+            align-items: center;
+            gap: .625rem;
+            padding: .75rem 1rem;
+            background: #fff5f5;
+            border: 1px solid #fecaca;
+            border-radius: .75rem;
+            font-size: .8125rem;
+            color: #dc2626;
+            margin-bottom: 1.25rem;
+        }
+
+        /* ── Footer ── */
+        .login-footer {
+            text-align: center;
+            font-size: .6875rem;
+            color: rgba(255, 255, 255, .25);
+            margin-top: 1.5rem;
+        }
     </style>
 </head>
 
-<body class="bg-green-dark min-h-screen flex items-center justify-center px-4"
-    style="background:linear-gradient(135deg,#2a3022 0%,#3d4733 100%)">
+<body>
 
-    <div class="w-full max-w-[400px]">
+    <div class="login-wrap">
 
         <!-- Logo -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center gap-3 mb-2">
-                <img src="/assets/img/logo.png" alt="Guia Campo Belo" style="height:70px">
-            </div>
+        <div class="text-center mb-4">
+            <img src="/assets/img/logo.png" alt="Guia Campo Belo" style="height:70px">
         </div>
 
         <!-- Card -->
-        <div class="bg-[#faf8f3] rounded-2xl p-8 shadow-[0_24px_60px_rgba(0,0,0,0.3)]">
-            <h1 class="font-display text-[24px] font-bold text-[#2a3022] mb-1">Bem-vindo</h1>
-            <p class="text-[13px] text-[#8b8589] mb-7">Acesso restrito ao administrador</p>
+        <div class="login-card">
+            <div class="card-title">Bem-vindo</div>
+            <div class="card-subtitle">Acesso restrito ao administrador</div>
 
             <?php if ($erro): ?>
-            <div class="flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200
-                  rounded-xl text-[13px] text-red-600 mb-5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
+            <div class="alert-login">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
                 <?= Sanitize::html($erro) ?>
             </div>
@@ -144,45 +243,49 @@ $csrf = Sanitize::csrfToken();
             <form method="POST" action="/admin/login.php" novalidate>
                 <input type="hidden" name="_token" value="<?= Sanitize::html($csrf) ?>" />
 
-                <div class="mb-4">
-                    <label class="block text-[10px] font-black tracking-[0.18em] uppercase
-                        text-[#8b8589] mb-2">E-mail</label>
-                    <input type="email" name="email" required autocomplete="email"
+                <div class="mb-3">
+                    <label class="form-label">E-mail</label>
+                    <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        required
+                        autocomplete="email"
                         value="<?= Sanitize::html($_POST['email'] ?? '') ?>"
-                        class="w-full px-4 py-3 bg-[#f2f0eb] border border-[#3d4733]/10
-                        rounded-xl text-[14px] outline-none
-                        focus:border-[#c9aa6b]/60 focus:ring-2 focus:ring-[#c9aa6b]/15
-                        transition-all duration-200" />
+                    />
                 </div>
 
-                <div class="mb-6">
-                    <label class="block text-[10px] font-black tracking-[0.18em] uppercase
-                        text-[#8b8589] mb-2">Senha</label>
-                    <input type="password" name="senha" required autocomplete="current-password"
-                        class="w-full px-4 py-3 bg-[#f2f0eb] border border-[#3d4733]/10
-                        rounded-xl text-[14px] outline-none
-                        focus:border-[#c9aa6b]/60 focus:ring-2 focus:ring-[#c9aa6b]/15
-                        transition-all duration-200" />
+                <div class="mb-4">
+                    <label class="form-label">Senha</label>
+                    <input
+                        type="password"
+                        name="senha"
+                        class="form-control"
+                        required
+                        autocomplete="current-password"
+                    />
                 </div>
 
                 <!-- Cloudflare Turnstile Widget -->
                 <div class="cf-turnstile"
-                     data-sitekey="0x4AAAAAACzHCfnzOpQH45p_"
+                     data-sitekey="0x4AAAAAAC-jy6CfuJSkRqaN"
                      data-theme="light">
                 </div>
 
-                <button type="submit" class="w-full py-3.5 bg-[#2a3022] hover:bg-[#3d4733] text-white
-                       font-black text-[12px] tracking-[0.12em] uppercase rounded-full
-                       transition-colors duration-200">
+                <button type="submit" class="btn-login">
                     Entrar no painel
                 </button>
             </form>
         </div>
 
-        <p class="text-center text-[11px] text-white/25 mt-6">
+        <p class="login-footer">
             &copy; <?= date('Y') ?> Guia Campo Belo &amp; Região
         </p>
+
     </div>
+
+    <!-- Bootstrap 5 JS (necessário apenas se usar componentes JS do Bootstrap) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
 
 </body>
 

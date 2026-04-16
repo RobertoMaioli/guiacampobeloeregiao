@@ -9,7 +9,6 @@ Auth::require();
 $page_title = 'Tags / Palavras-chave';
 $erros = [];
 
-/* ── POST: criar / editar / excluir ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && Sanitize::csrfValid($_POST['_token'] ?? '')) {
     $action = Sanitize::post('action');
 
@@ -49,10 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && Sanitize::csrfValid($_POST['_token'
     }
 }
 
-$tags = DB::query('SELECT t.*, COUNT(lt.lugar_id) AS total_lugares
-                   FROM tags t
-                   LEFT JOIN lugar_tags lt ON lt.tag_id = t.id
-                   GROUP BY t.id ORDER BY t.label');
+$tags = DB::query(
+    'SELECT t.*, COUNT(lt.lugar_id) AS total_lugares
+     FROM tags t
+     LEFT JOIN lugar_tags lt ON lt.tag_id = t.id
+     GROUP BY t.id ORDER BY t.label'
+);
 
 $edit_id  = Sanitize::get('edit', 'int', 0);
 $edit_tag = $edit_id ? DB::row('SELECT * FROM tags WHERE id = ?', [$edit_id]) : null;
@@ -60,142 +61,278 @@ $edit_tag = $edit_id ? DB::row('SELECT * FROM tags WHERE id = ?', [$edit_id]) : 
 include __DIR__ . '/../_layout.php';
 ?>
 
-<!-- Form -->
-<div class="bg-white rounded-2xl border border-green/[0.07] p-6 mb-6">
-  <h3 class="font-display text-[16px] font-bold text-green-dark mb-1">
-    <?= $edit_tag ? 'Editar tag' : 'Nova tag' ?>
-  </h3>
-  <p class="text-[12.5px] text-warmgray mb-5">
-    Tags aparecem nos cards dos lugares e ajudam na busca e filtragem.
-  </p>
+<style>
+    /* ── Form card ── */
+    .form-card {
+        background: #fff;
+        border: 1px solid rgba(61,71,51,.07);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        margin-bottom: 1.5rem;
+    }
+    .form-card-title {
+        font-size: 1rem; font-weight: 700;
+        color: var(--green-dk); margin: 0 0 .25rem;
+    }
+    .form-card-sub {
+        font-size: .78125rem; color: var(--warmgray);
+        margin: 0 0 1.25rem;
+    }
 
-  <?php if (!empty($erros)): ?>
-  <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-[13px] text-red-600">
-    <?= Sanitize::html(implode(' ', $erros)) ?>
-  </div>
-  <?php endif; ?>
+    .form-label-admin {
+        display: block;
+        font-size: .625rem; font-weight: 900;
+        letter-spacing: .18em; text-transform: uppercase;
+        color: var(--warmgray); margin-bottom: .375rem;
+    }
+    .form-field {
+        width: 100%;
+        padding: .625rem 1rem;
+        background: var(--offwhite);
+        border: 1px solid rgba(61,71,51,.1);
+        border-radius: .75rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: .84375rem; color: var(--graphite);
+        outline: none; transition: border-color .2s;
+    }
+    .form-field:focus { border-color: rgba(201,170,107,.5); }
 
-  <form method="POST" class="flex flex-wrap gap-4 items-end">
-    <input type="hidden" name="_token" value="<?= Sanitize::html(Sanitize::csrfToken()) ?>"/>
-    <input type="hidden" name="action" value="save"/>
-    <input type="hidden" name="id"     value="<?= (int)($edit_tag['id'] ?? 0) ?>"/>
+    .btn-submit {
+        height: 42px; padding: 0 1.5rem;
+        background: var(--green-dk); color: #fff;
+        font-size: .75rem; font-weight: 900;
+        letter-spacing: .1em; text-transform: uppercase;
+        border: none; border-radius: .75rem;
+        cursor: pointer; transition: background .2s;
+        font-family: 'Montserrat', sans-serif;
+        white-space: nowrap;
+    }
+    .btn-submit:hover { background: var(--green); }
 
-    <div class="flex-1 min-w-[200px]">
-      <label class="block text-[10px] font-black tracking-[0.18em] uppercase text-warmgray mb-1.5">
-        Nome da tag *
-      </label>
-      <input type="text" name="label" id="tag-label" required
-             value="<?= Sanitize::html($edit_tag['label'] ?? '') ?>"
-             placeholder="ex: Jantar Romântico, Pet Friendly, Brunch"
-             class="w-full px-4 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
-                    text-[13.5px] outline-none focus:border-gold/50 transition-colors"
-             oninput="autoTagSlug(this.value)"/>
-    </div>
+    .btn-cancel-inline {
+        height: 42px; padding: 0 1.25rem;
+        display: inline-flex; align-items: center;
+        background: var(--offwhite); color: var(--graphite);
+        font-size: .75rem; font-weight: 700;
+        border: none; border-radius: .75rem;
+        text-decoration: none; transition: background .2s;
+        white-space: nowrap;
+    }
+    .btn-cancel-inline:hover { background: var(--gold-pale); color: var(--graphite); }
 
-    <div class="w-[220px]">
-      <label class="block text-[10px] font-black tracking-[0.18em] uppercase text-warmgray mb-1.5">
-        Slug
-      </label>
-      <input type="text" name="slug" id="tag-slug"
-             value="<?= Sanitize::html($edit_tag['slug'] ?? '') ?>"
-             placeholder="gerado automaticamente"
-             class="w-full px-4 py-2.5 bg-offwhite border border-green/[0.1] rounded-xl
-                    text-[13.5px] outline-none focus:border-gold/50 transition-colors"/>
-    </div>
+    .error-inline {
+        background: #fef2f2; border: 1px solid #fecaca;
+        border-radius: .75rem; padding: .75rem 1rem;
+        margin-bottom: 1rem;
+        font-size: .8125rem; color: #dc2626;
+    }
 
-    <button type="submit"
-            class="h-[42px] px-6 bg-green-dark hover:bg-green text-white text-[12px]
-                   font-black tracking-widest uppercase rounded-xl transition-colors">
-      <?= $edit_tag ? 'Salvar' : 'Criar' ?>
-    </button>
+    /* ── Tag cloud card ── */
+    .cloud-card {
+        background: #fff;
+        border: 1px solid rgba(61,71,51,.07);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        margin-bottom: 1.5rem;
+    }
+    .cloud-label {
+        font-size: .625rem; font-weight: 900;
+        letter-spacing: .2em; text-transform: uppercase;
+        color: var(--gold); margin: 0 0 1rem;
+    }
 
-    <?php if ($edit_tag): ?>
-    <a href="/admin/tags/index.php"
-       class="h-[42px] px-5 flex items-center bg-offwhite hover:bg-gold-pale text-graphite
-              text-[12px] font-bold rounded-xl transition-colors">
-      Cancelar
-    </a>
+    .tag-cloud-pill {
+        display: inline-flex; align-items: center; gap: .375rem;
+        padding: .375rem .875rem;
+        border-radius: 50px;
+        border: 1px solid rgba(61,71,51,.1);
+        background: var(--offwhite);
+        font-size: .75rem; font-weight: 600;
+        color: var(--green); text-decoration: none;
+        transition: background .15s, border-color .15s;
+    }
+    .tag-cloud-pill:hover {
+        background: var(--gold-pale);
+        border-color: rgba(201,170,107,.4);
+        color: var(--green);
+    }
+    .tag-cloud-count {
+        font-size: .625rem; font-weight: 900;
+        color: rgba(139,133,137,.6);
+    }
+
+    /* ── List card ── */
+    .list-card {
+        background: #fff;
+        border: 1px solid rgba(61,71,51,.07);
+        border-radius: 1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        overflow: hidden;
+    }
+    .list-card-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--offwhite);
+    }
+    .list-card-title {
+        font-size: 1rem; font-weight: 700;
+        color: var(--green-dk); margin: 0;
+    }
+    .list-card-count { font-size: .75rem; color: var(--warmgray); }
+    .list-card-count strong { color: var(--graphite); }
+
+    /* ── Tag row ── */
+    .tag-row {
+        display: flex; align-items: center;
+        justify-content: space-between;
+        padding: .75rem 1.5rem;
+        border-bottom: 1px solid var(--offwhite);
+        transition: background .15s;
+    }
+    .tag-row:last-child { border-bottom: none; }
+    .tag-row:hover { background: rgba(242,240,235,.5); }
+
+    .tag-row-name {
+        font-size: .84375rem; font-weight: 600;
+        color: var(--graphite);
+    }
+    .tag-row-sub {
+        font-size: .6875rem; color: var(--warmgray);
+        margin: .1rem 0 0;
+    }
+
+    .btn-edit-link {
+        font-size: .6875rem; font-weight: 700;
+        color: var(--gold); text-decoration: none;
+        transition: color .2s;
+    }
+    .btn-edit-link:hover { color: var(--gold-lt); }
+
+    .btn-delete-link {
+        background: none; border: none; padding: 0;
+        font-size: .6875rem; font-weight: 700;
+        color: #f87171; cursor: pointer; transition: color .2s;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .btn-delete-link:hover { color: #dc2626; }
+
+    .empty-state {
+        padding: 3rem 1.5rem; text-align: center;
+        font-size: .8125rem; color: var(--warmgray);
+    }
+</style>
+
+<!-- ── Form nova / editar ── -->
+<div class="form-card">
+    <h3 class="form-card-title"><?= $edit_tag ? 'Editar tag' : 'Nova tag' ?></h3>
+    <p class="form-card-sub">Tags aparecem nos cards dos lugares e ajudam na busca e filtragem.</p>
+
+    <?php if (!empty($erros)): ?>
+    <div class="error-inline"><?= Sanitize::html(implode(' ', $erros)) ?></div>
     <?php endif; ?>
-  </form>
+
+    <form method="POST">
+        <input type="hidden" name="_token" value="<?= Sanitize::html(Sanitize::csrfToken()) ?>"/>
+        <input type="hidden" name="action" value="save"/>
+        <input type="hidden" name="id"     value="<?= (int)($edit_tag['id'] ?? 0) ?>"/>
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-12 col-sm">
+                <label class="form-label-admin">Nome da tag *</label>
+                <input type="text" name="label" id="tag-label" required
+                       value="<?= Sanitize::html($edit_tag['label'] ?? '') ?>"
+                       placeholder="ex: Jantar Romântico, Pet Friendly, Brunch"
+                       class="form-field"
+                       oninput="autoTagSlug(this.value)"/>
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <label class="form-label-admin">Slug</label>
+                <input type="text" name="slug" id="tag-slug"
+                       value="<?= Sanitize::html($edit_tag['slug'] ?? '') ?>"
+                       placeholder="gerado automaticamente"
+                       class="form-field"/>
+            </div>
+
+            <div class="col-12 col-sm-auto d-flex gap-2">
+                <button type="submit" class="btn-submit">
+                    <?= $edit_tag ? 'Salvar' : 'Criar' ?>
+                </button>
+                <?php if ($edit_tag): ?>
+                <a href="/admin/tags/index.php" class="btn-cancel-inline">Cancelar</a>
+                <?php endif; ?>
+            </div>
+
+        </div>
+    </form>
 </div>
 
-<!-- Nuvem de tags -->
+<!-- ── Nuvem de tags ── -->
 <?php if (!empty($tags)): ?>
-<div class="bg-white rounded-2xl border border-green/[0.07] p-6 mb-6">
-  <h3 class="text-[10px] font-black tracking-[0.2em] uppercase text-gold mb-4">
-    Visualização
-  </h3>
-  <div class="flex flex-wrap gap-2">
-    <?php foreach ($tags as $t): ?>
-    <a href="?edit=<?= (int)$t['id'] ?>"
-       class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border
-              border-green/[0.1] bg-offwhite hover:bg-gold-pale hover:border-gold/40
-              text-[12px] font-semibold text-green transition-all duration-200 cursor-pointer">
-      <?= Sanitize::html($t['label']) ?>
-      <?php if ($t['total_lugares'] > 0): ?>
-      <span class="text-[10px] font-black text-warmgray/60"><?= (int)$t['total_lugares'] ?></span>
-      <?php endif; ?>
-    </a>
-    <?php endforeach; ?>
-  </div>
+<div class="cloud-card">
+    <p class="cloud-label">Visualização</p>
+    <div class="d-flex flex-wrap gap-2">
+        <?php foreach ($tags as $t): ?>
+        <a href="?edit=<?= (int)$t['id'] ?>" class="tag-cloud-pill">
+            <?= Sanitize::html($t['label']) ?>
+            <?php if ($t['total_lugares'] > 0): ?>
+            <span class="tag-cloud-count"><?= (int)$t['total_lugares'] ?></span>
+            <?php endif; ?>
+        </a>
+        <?php endforeach; ?>
+    </div>
 </div>
 <?php endif; ?>
 
-<!-- Lista completa -->
-<div class="bg-white rounded-2xl border border-green/[0.07] shadow-sm overflow-hidden">
-  <div class="flex items-center justify-between px-6 py-4 border-b border-offwhite">
-    <h3 class="font-display text-[16px] font-bold text-green-dark">Todas as tags</h3>
-    <span class="text-[12px] text-warmgray">
-      <span class="font-black text-graphite"><?= count($tags) ?></span> cadastradas
-    </span>
-  </div>
+<!-- ── Lista completa ── -->
+<div class="list-card">
+    <div class="list-card-header">
+        <h3 class="list-card-title">Todas as tags</h3>
+        <span class="list-card-count">
+            <strong><?= count($tags) ?></strong> cadastradas
+        </span>
+    </div>
 
-  <?php if (empty($tags)): ?>
-  <div class="py-12 text-center text-[13px] text-warmgray">
-    Nenhuma tag cadastrada ainda.
-  </div>
-  <?php else: ?>
-  <div class="divide-y divide-offwhite">
+    <?php if (empty($tags)): ?>
+    <div class="empty-state">Nenhuma tag cadastrada ainda.</div>
+    <?php else: ?>
     <?php foreach ($tags as $t): ?>
-    <div class="flex items-center justify-between px-6 py-3
-                hover:bg-offwhite/50 transition-colors">
-      <div>
-        <p class="font-semibold text-[13.5px] text-graphite"><?= Sanitize::html($t['label']) ?></p>
-        <p class="text-[11px] text-warmgray"><?= Sanitize::html($t['slug']) ?> · <?= (int)$t['total_lugares'] ?> lugar(es)</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <a href="?edit=<?= (int)$t['id'] ?>"
-           class="text-[11px] font-bold text-gold hover:text-gold-light transition-colors">
-          Editar
-        </a>
-        <form method="POST" style="display:inline"
-              onsubmit="return confirm('Excluir esta tag?')">
-          <input type="hidden" name="_token"  value="<?= Sanitize::html(Sanitize::csrfToken()) ?>"/>
-          <input type="hidden" name="action"  value="excluir"/>
-          <input type="hidden" name="id"      value="<?= (int)$t['id'] ?>"/>
-          <button type="submit"
-                  class="text-[11px] font-bold text-red-400 hover:text-red-600 transition-colors">
-            Excluir
-          </button>
-        </form>
-      </div>
+    <div class="tag-row">
+        <div>
+            <div class="tag-row-name"><?= Sanitize::html($t['label']) ?></div>
+            <div class="tag-row-sub">
+                <?= Sanitize::html($t['slug']) ?> · <?= (int)$t['total_lugares'] ?> lugar(es)
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <a href="?edit=<?= (int)$t['id'] ?>" class="btn-edit-link">Editar</a>
+            <form method="POST" style="display:inline"
+                  onsubmit="return confirm('Excluir esta tag?')">
+                <input type="hidden" name="_token" value="<?= Sanitize::html(Sanitize::csrfToken()) ?>"/>
+                <input type="hidden" name="action" value="excluir"/>
+                <input type="hidden" name="id"     value="<?= (int)$t['id'] ?>"/>
+                <button type="submit" class="btn-delete-link">Excluir</button>
+            </form>
+        </div>
     </div>
     <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
+    <?php endif; ?>
 </div>
 
 <script>
 function autoTagSlug(val) {
-  const slugField = document.getElementById('tag-slug');
-  if (slugField.dataset.manual) return;
-  slugField.value = val.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9\s-]/g,'').trim()
-    .replace(/\s+/g,'-').replace(/-+/g,'-');
+    const slugField = document.getElementById('tag-slug');
+    if (slugField.dataset.manual) return;
+    slugField.value = val.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '').trim()
+        .replace(/\s+/g, '-').replace(/-+/g, '-');
 }
-document.getElementById('tag-slug').addEventListener('input', function() {
-  this.dataset.manual = '1';
+document.getElementById('tag-slug').addEventListener('input', function () {
+    this.dataset.manual = '1';
 });
 </script>
 
