@@ -552,6 +552,106 @@ $quick_tags = ['Brunch','Sushi','Pet shop','Academia','Wine bar','Salão'];
   </div>
 </section>
 
+<!-- ── NA MÍDIA ── -->
+<section class="py-5 bg-offwhite" style="overflow:hidden">
+  <div class="container">
+
+    <!-- Título -->
+    <div class="text-center mb-5">
+      <span class="eyebrow">Mídia</span>
+      <h2 class="font-display fw-bold mb-0"
+          style="color:var(--gcb-green-dark);font-size:clamp(26px,3.5vw,42px)">
+        Na <em class="fst-italic text-gold">imprensa</em>
+      </h2>
+      <div class="section-line mx-auto mt-3"></div>
+      <p class="mt-3 mx-auto"
+         style="font-size:15px;font-weight:300;color:var(--gcb-warmgray);max-width:520px">
+        O Guia Campo Belo & Região sendo destaque nos principais veículos.
+      </p>
+    </div>
+
+    <!-- GRID -->
+    <div class="row g-4">
+
+      <?php
+      $midias = [
+        [
+          'titulo' => 'Jornalista do Campo Belo lança guia e plataforma digital para conectar negócios e consumidores da região',
+          'veiculo' => 'Isto é negócios',
+          'data' => '',
+          'img' => 'assets/img/midias/negocios.jpg',
+          'link' => 'https://istoenegocios.com/jornalista-do-campo-belo-lanca-guia-e-plataforma-digital-para-conectar-negocios-e-consumidores-da-regiao/'
+        ],
+        [
+          'titulo' => 'Jornalista do Campo Belo lança guia e plataforma digital para conectar negócios e consumidores da região',
+          'veiculo' => 'Isto é',
+          'data' => '',
+          'img' => 'assets/img/midias/istoe.jpg',
+          'link' => 'https://istoerio.com/jornalista-do-campo-belo-lanca-guia-e-plataforma-digital-para-conectar-negocios-e-consumidores-da-regiao/'
+        ],
+        [
+          'titulo' => 'Jornalista do Campo Belo lança guia e plataforma digital para conectar negócios e consumidores da região',
+          'veiculo' => 'RedeTv News',
+          'data' => '',
+          'img' => 'assets/img/midias/REDETVNEWS.png',
+          'link' => 'https://redetv.news/2026/04/02/jornalista-do-campo-belo-lanca-guia-e-plataforma-digital-para-conectar-negocios-e-consumidores-da-regiao/'
+        ],
+      ];
+      ?>
+
+      <?php foreach ($midias as $m): ?>
+      <div class="col-12 col-md-6 col-lg-4">
+        <a href="<?= $m['link'] ?>" target="_blank"
+           class="text-decoration-none d-block h-100">
+
+          <article class="gcb-card h-100 overflow-hidden">
+
+            <!-- imagem -->
+            <div style="height:180px;overflow:hidden">
+              <img src="<?= $m['img'] ?>"
+                   alt="<?= htmlspecialchars($m['titulo']) ?>"
+                   class="w-100 h-100 object-fit-cover"
+                   style="transition:transform .6s ease; padding:30px">
+            </div>
+
+            <!-- conteúdo -->
+            <div class="p-4">
+
+              <p style="font-size:10px;font-weight:800;letter-spacing:.18em;
+                        text-transform:uppercase;color:var(--gcb-gold-light)"
+                 class="mb-2">
+                <?= htmlspecialchars($m['veiculo']) ?>
+              </p>
+
+              <h3 class="font-display fw-bold"
+                  style="font-size:18px;color:var(--gcb-green-dark);line-height:1.3">
+                <?= htmlspecialchars($m['titulo']) ?>
+              </h3>
+
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span style="font-size:12px;color:var(--gcb-warmgray)">
+                  <?= $m['data'] ?>
+                </span>
+
+                <span style="font-size:11px;font-weight:800;
+                             letter-spacing:.08em;text-transform:uppercase;
+                             color:var(--gcb-gold)">
+                  Ler matéria →
+                </span>
+              </div>
+
+            </div>
+
+          </article>
+
+        </a>
+      </div>
+      <?php endforeach; ?>
+
+    </div>
+
+  </div>
+</section>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
 
