@@ -39,11 +39,11 @@ $cat_atual = $slug_atual !== ''
 
 // ── Ordenação ────────────────────────────────────────────────────────────────
 $order_sql = match($sort) {
-    'avaliacao'  => 'l.rating DESC, l.total_reviews DESC',
-    'novo'       => 'l.criado_em DESC',
-    'preco-asc'  => 'l.preco_nivel ASC',
-    'preco-desc' => 'l.preco_nivel DESC',
-    default      => 'l.rating DESC',
+    'avaliacao'  => 'aberto DESC, l.rating DESC, l.total_reviews DESC',
+    'novo'       => 'aberto DESC, l.criado_em DESC',
+    'preco-asc'  => 'aberto DESC, l.preco_nivel ASC',
+    'preco-desc' => 'aberto DESC, l.preco_nivel DESC',
+    default      => 'aberto DESC, l.rating DESC',
 };
 
 // ── WHERE dinâmico ───────────────────────────────────────────────────────────

@@ -51,7 +51,7 @@ $listings_db = DB::query(
             ) THEN 1 ELSE 0 END AS aberto_agora
      FROM lugares l JOIN categorias c ON c.id=l.categoria_id
      LEFT JOIN fotos f ON f.lugar_id=l.id AND f.principal=1
-     WHERE l.ativo=1 ORDER BY l.destaque DESC,l.rating DESC LIMIT 6");
+     WHERE l.ativo=1 ORDER BY aberto_agora DESC, l.rating DESC, l.total_reviews DESC LIMIT 6");
 $listings = [];
 foreach ($listings_db as $row) {
     $tags = DB::query('SELECT t.label FROM lugar_tags lt JOIN tags t ON t.id=lt.tag_id WHERE lt.lugar_id=? LIMIT 3',[$row['id']]);

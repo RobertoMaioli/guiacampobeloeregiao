@@ -27,34 +27,7 @@ UserAuth::start();
       --fs-xs:     13px;
     }
 
-    /* ── Base ── */
     body { background: var(--cream); font-family: 'Montserrat', sans-serif; color: var(--graphite); }
-
-    /* ── Utilitários tipográficos ── */
-    .eyebrow-par {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 10px;
-    }
-    .section-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: clamp(26px, 3.5vw, 42px);
-      font-weight: 800;
-      color: var(--green-dk);
-      line-height: 1.15;
-      margin: 0 0 16px;
-    }
-    .section-sub {
-      font-size: var(--fs-base);
-      font-weight: 300;
-      color: var(--warm);
-      line-height: 1.75;
-      max-width: 580px;
-    }
 
     /* ════════════════════════
        HERO
@@ -65,7 +38,6 @@ UserAuth::start();
       position: relative;
       overflow: hidden;
     }
-    /* linha decorativa sutil */
     .par-hero::before {
       content: '';
       position: absolute;
@@ -110,10 +82,7 @@ UserAuth::start();
       margin: 0 0 20px;
       max-width: 680px;
     }
-    .hero-headline em {
-      font-style: normal;
-      color: var(--gold);
-    }
+    .hero-headline em { font-style: normal; color: var(--gold); }
     .hero-pain {
       font-size: clamp(17px, 2vw, 21px);
       font-weight: 300;
@@ -149,7 +118,6 @@ UserAuth::start();
     .btn-hero svg { transition: transform .2s; }
     .btn-hero:hover svg { transform: translateX(3px); }
 
-    /* número flutuante decorativo */
     .hero-stat-row {
       display: flex;
       gap: 40px;
@@ -172,170 +140,233 @@ UserAuth::start();
     }
 
     /* ════════════════════════
-       CARDS DE PARCEIROS
+       SEÇÕES DE PARCEIROS
     ════════════════════════ */
-    .parceiros-section {
-      padding: 96px 0 80px;
-      background: var(--cream);
-    }
-    .section-header { margin-bottom: 56px; }
 
-    .partner-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 28px;
-    }
-    @media (max-width: 900px) {
-      .partner-grid { grid-template-columns: 1fr; }
-    }
-
-    .partner-card {
-      background: #fff;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 20px rgba(29,29,27,.06);
+    /* Cada seção ocupa 100% da largura */
+    .partner-section {
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+      min-height: 480px;
+      border-bottom: 1px solid var(--border);
       overflow: hidden;
+    }
+
+    /* Seções pares: cream. Seções ímpares: offwhite */
+    .partner-section:nth-child(odd)  { background: var(--cream); }
+    .partner-section:nth-child(even) { background: var(--offwhite); }
+
+    /* Coluna da imagem */
+    .ps-img-col {
+      width: 45%;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .ps-img-col img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .6s ease;
+    }
+    .partner-section:hover .ps-img-col img {
+      transform: scale(1.03);
+    }
+
+    /* Número grande decorativo sobre a imagem */
+    .ps-img-num {
+      position: absolute;
+      bottom: 20px;
+      right: 24px;
+      font-size: 96px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: #fff;
+      opacity: .14;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Barra vertical colorida entre imagem e texto */
+    .ps-accent-bar {
+      width: 5px;
+      flex-shrink: 0;
+    }
+
+    /* Coluna do conteúdo */
+    .ps-content {
+      flex: 1;
+      padding: 64px 56px;
       display: flex;
       flex-direction: column;
-      transition: transform .3s ease, box-shadow .3s ease;
-    }
-    .partner-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 40px rgba(29,29,27,.10);
+      justify-content: center;
+      gap: 12px;
     }
 
-    /* faixa colorida topo do card */
-    .card-accent {
-      height: 5px;
-      background: linear-gradient(90deg, var(--green) 0%, var(--gold) 100%);
-    }
+    /* Layout zigue-zague: seções pares invertem */
+    .partner-section.reverse { flex-direction: row-reverse; }
 
-    .card-body-par { padding: 32px 32px 24px; flex: 1; }
-
-    .card-tag {
-      display: inline-block;
+    /* Eyebrow */
+    .ps-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
       font-size: 9px;
       font-weight: 900;
       letter-spacing: .22em;
       text-transform: uppercase;
-      color: var(--gold);
-      background: var(--gold-pale);
-      border: 1px solid rgba(201,170,107,.25);
-      border-radius: 999px;
-      padding: 4px 12px;
-      margin-bottom: 14px;
+      margin-bottom: 2px;
     }
-    .card-partner-name {
-      font-size: 22px;
+
+    /* Nome */
+    .ps-name {
+      font-size: clamp(28px, 3.5vw, 42px);
       font-weight: 800;
       color: var(--green-dk);
-      margin: 0 0 4px;
-      line-height: 1.2;
+      line-height: 1.05;
+      margin: 0;
     }
-    .card-partner-role {
+
+    /* Subtítulo */
+    .ps-role {
       font-size: var(--fs-xs);
-      color: var(--warm);
       font-weight: 400;
-      margin: 0 0 20px;
+      color: var(--warm);
+      margin: 0;
     }
-    .card-desc {
+
+    /* Divisor decorativo */
+    .ps-divider-line {
+      width: 40px;
+      height: 2px;
+      border-radius: 99px;
+      margin: 4px 0;
+    }
+
+    /* Descrição */
+    .ps-desc {
       font-size: var(--fs-sm);
-      color: var(--graphite);
       font-weight: 300;
-      line-height: 1.75;
-      margin: 0 0 24px;
-    }
-
-    /* bullets */
-    .card-bullets {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-    }
-    .card-bullets li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: var(--fs-sm);
       color: var(--graphite);
-      font-weight: 500;
-      line-height: 1.5;
-    }
-    .bullet-dot {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--gold-pale);
-      border: 1.5px solid rgba(201,170,107,.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .bullet-dot::after {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--gold);
+      line-height: 1.8;
+      max-width: 460px;
+      margin: 0;
     }
 
-    /* botões do card */
-    .card-footer-par {
-      padding: 20px 32px 28px;
+    /* Pills de serviços */
+    .ps-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .ps-pill {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      padding: 5px 14px;
+      border-radius: 999px;
+    }
+
+    /* Botões */
+    .ps-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      border-top: 1px solid var(--border);
+      margin-top: 8px;
     }
-    .btn-site {
-      flex: 1;
-      min-width: 140px;
+    .ps-btn {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 8px;
-      padding: 14px 20px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background .2s, transform .15s, border-color .2s;
+      border: none;
+      cursor: pointer;
+    }
+    .ps-btn:hover { transform: translateY(-2px); }
+    .ps-btn-ghost {
+      background: transparent;
+      border: 2px solid rgba(61,71,51,.18) !important;
+      color: var(--green-dk) !important;
+    }
+    .ps-btn-ghost:hover {
+      border-color: var(--gold) !important;
+      background: var(--gold-pale) !important;
+    }
+    .ps-btn svg { transition: transform .2s; }
+    .ps-btn:hover svg { transform: translateX(3px); }
+
+    /* ── Cores por parceiro ── */
+
+    /* 1 – Banzai (dourado) */
+    .ps-banzai .ps-accent-bar { background: var(--gold); }
+    .ps-banzai .ps-eyebrow    { color: var(--gold); }
+    .ps-banzai .ps-divider-line { background: var(--gold); }
+    .ps-banzai .ps-pill {
+      background: rgba(201,170,107,.12);
+      color: #7a5c20;
+      border: 1px solid rgba(201,170,107,.35);
+    }
+    .ps-banzai .ps-btn-main {
       background: var(--green-dk);
       color: #fff;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: background .2s, transform .15s;
     }
-    .btn-site:hover { background: var(--green); transform: translateY(-1px); color: #fff; }
-    .btn-whats {
-      flex: 1;
-      min-width: 140px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 14px 20px;
-      background: transparent;
+    .ps-banzai .ps-btn-main:hover { background: var(--green); }
+
+    /* 2 – Maioli (verde escuro) */
+    .ps-maioli .ps-accent-bar { background: var(--green); }
+    .ps-maioli .ps-eyebrow    { color: var(--green); }
+    .ps-maioli .ps-divider-line { background: var(--green); }
+    .ps-maioli .ps-pill {
+      background: rgba(61,71,51,.08);
       color: var(--green-dk);
-      border: 2px solid rgba(61,71,51,.2);
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: border-color .2s, background .2s, transform .15s;
+      border: 1px solid rgba(61,71,51,.2);
     }
-    .btn-whats:hover {
-      border-color: var(--gold);
-      background: var(--gold-pale);
+    .ps-maioli .ps-btn-main {
+      background: var(--green-dk);
+      color: #fff;
+    }
+    .ps-maioli .ps-btn-main:hover { background: var(--green); }
+
+    /* 3 – Massago (dourado mais quente) */
+    .ps-massago .ps-accent-bar { background: #b8934a; }
+    .ps-massago .ps-eyebrow    { color: #b8934a; }
+    .ps-massago .ps-divider-line { background: #b8934a; }
+    .ps-massago .ps-pill {
+      background: rgba(184,147,74,.1);
+      color: #7a5c20;
+      border: 1px solid rgba(184,147,74,.3);
+    }
+    .ps-massago .ps-btn-main {
+      background: var(--green-dk);
+      color: #fff;
+    }
+    .ps-massago .ps-btn-main:hover { background: var(--green); }
+
+    /* 4 – Tato (verde) */
+    .ps-tato .ps-accent-bar { background: var(--green); }
+    .ps-tato .ps-eyebrow    { color: var(--green); }
+    .ps-tato .ps-divider-line { background: var(--green); }
+    .ps-tato .ps-pill {
+      background: rgba(61,71,51,.08);
       color: var(--green-dk);
-      transform: translateY(-1px);
+      border: 1px solid rgba(61,71,51,.2);
     }
+    .ps-tato .ps-btn-main {
+      background: var(--green-dk);
+      color: #fff;
+    }
+    .ps-tato .ps-btn-main:hover { background: var(--green); }
 
     /* ════════════════════════
        SEÇÃO "COMO ESCOLHER"
@@ -356,8 +387,28 @@ UserAuth::start();
       background-size: 48px 48px;
     }
     .como-section .container { position: relative; z-index: 1; }
-    .como-section .section-title { color: #fff; }
-    .como-section .section-sub { color: rgba(255,255,255,.45); }
+
+    .eyebrow-par {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: clamp(26px, 3.5vw, 42px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0 0 16px;
+    }
+    .section-sub {
+      font-size: var(--fs-base);
+      font-weight: 300;
+      line-height: 1.75;
+      max-width: 580px;
+    }
 
     .steps-row {
       display: grid;
@@ -365,16 +416,11 @@ UserAuth::start();
       gap: 28px;
       margin-top: 52px;
     }
-    @media (max-width: 720px) {
-      .steps-row { grid-template-columns: 1fr; }
-    }
-
     .step-card {
       background: rgba(255,255,255,.04);
       border: 1px solid rgba(255,255,255,.08);
       border-radius: var(--radius);
       padding: 32px 28px;
-      position: relative;
     }
     .step-num {
       font-size: 52px;
@@ -411,7 +457,7 @@ UserAuth::start();
     }
 
     /* ════════════════════════
-       RODAPÉ DE SEÇÃO
+       RODAPÉ DE PÁGINA
     ════════════════════════ */
     .par-footer-section {
       background: var(--offwhite);
@@ -426,10 +472,7 @@ UserAuth::start();
       line-height: 1.4;
       margin: 0 0 10px;
     }
-    .par-footer-quote em {
-      font-style: normal;
-      color: var(--gold);
-    }
+    .par-footer-quote em { font-style: normal; color: var(--gold); }
     .par-footer-sub {
       font-size: var(--fs-xs);
       color: var(--warm);
@@ -453,14 +496,33 @@ UserAuth::start();
     }
     .btn-back-home:hover { background: var(--green); color: #fff; }
 
-    /* ── Mobile ajustes ── */
+    /* ════════════════════════
+       RESPONSIVE
+    ════════════════════════ */
+    @media (max-width: 900px) {
+      .partner-section,
+      .partner-section.reverse {
+        flex-direction: column !important;
+      }
+      .ps-img-col {
+        width: 100%;
+        height: 280px;
+      }
+      .ps-accent-bar {
+        width: 100%;
+        height: 4px;
+      }
+      .ps-content {
+        padding: 40px 28px;
+      }
+      .ps-img-num { font-size: 64px; }
+      .steps-row { grid-template-columns: 1fr; }
+      .hero-stat-row { gap: 24px; flex-wrap: wrap; }
+      .par-hero { padding: 120px 0 64px; }
+    }
     @media (max-width: 767px) {
       :root { --fs-base: 16px; --fs-sm: 14px; }
-      .par-hero { padding: 120px 0 64px; }
-      .hero-stat-row { gap: 24px; flex-wrap: wrap; }
-      .card-body-par, .card-footer-par { padding-left: 22px; padding-right: 22px; }
-      .parceiros-section { padding: 64px 0 56px; }
-      .como-section { padding: 64px 0; }
+      .ps-content { padding: 32px 20px; }
     }
   </style>
 </head>
@@ -468,6 +530,7 @@ UserAuth::start();
 
 <?php include __DIR__ . '/../includes/search-modal.php'; ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
+
 
 <!-- ══════════════════════════════════════════
      HERO
@@ -498,6 +561,21 @@ UserAuth::start();
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
 
+        <div class="hero-stat-row">
+          <div>
+            <div class="hero-stat-num">4</div>
+            <div class="hero-stat-lbl">Parceiros</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">100%</div>
+            <div class="hero-stat-lbl">Indicados</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">1</div>
+            <div class="hero-stat-lbl">Por frente</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -505,156 +583,192 @@ UserAuth::start();
 
 
 <!-- ══════════════════════════════════════════
-     CARDS DE PARCEIROS
+     SEÇÕES DE PARCEIROS
 ══════════════════════════════════════════ -->
-<section class="parceiros-section" id="parceiros">
-  <div class="container">
+<div id="parceiros">
 
-    <div class="section-header">
-      <span class="eyebrow-par">Escolha seu próximo passo</span>
-      <h2 class="section-title">4 frentes.<br>Um negócio mais forte.</h2>
-      <p class="section-sub">Cada parceiro resolve uma parte específica da sua presença. Você pode começar por uma ou avançar em todas.</p>
+  <!-- ── 01: BANZAI — Marketing ── -->
+  <section class="partner-section ps-banzai" id="marketing" aria-label="Banzai - Marketing">
+
+    <div class="ps-img-col">
+      <!-- Troque o src pela imagem real da Banzai -->
+      <img src="/assets/img/lugares/lugares/6/img_69c6ce713ed304.48263646.jpg" alt="Banzai — Branding e Marketing Digital" loading="lazy">
+      <div class="ps-img-num">01</div>
     </div>
 
-    <div class="partner-grid">
+    <div class="ps-accent-bar"></div>
 
-      <!-- ── CARD 1: MARKETING — Banzai ── -->
-      <article class="partner-card" aria-label="Banzai - Marketing">
-        <div class="card-accent"></div>
-        <div class="card-body-par">
-          <span class="card-tag">✦ Seu Marketing</span>
-          <h3 class="card-partner-name">Banzai</h3>
-          <p class="card-partner-role">Branding, Design e Marketing Digital</p>
-          <p class="card-desc">
-            Marca fraca é receita que fica na mesa. A Banzai trabalha branding, naming, design gráfico e marketing digital — o conjunto que faz um negócio ser reconhecido antes mesmo de ser experimentado. Se você quer que as pessoas lembrem do seu nome, saibam o que você representa e confiem antes de entrar em contato, é aqui que começa.
-          </p>
-          <ul class="card-bullets" aria-label="O que resolve">
-            <li><span class="bullet-dot" aria-hidden="true"></span> Identidade visual e posicionamento de marca</li>
-            <li><span class="bullet-dot" aria-hidden="true"></span> Design gráfico e digital para comunicação</li>
-            <li><span class="bullet-dot" aria-hidden="true"></span> Estratégia e execução de marketing digital</li>
-          </ul>
-        </div>
-        <div class="card-footer-par">
-          <a href="https://banzaibmkt.com.br/" target="_blank" rel="noopener" class="btn-site">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Acessar site
-          </a>
-          <a href="https://api.whatsapp.com/send?phone=5511983558500" target="_blank" rel="noopener" class="btn-whats">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            Falar no WhatsApp
-          </a>
-        </div>
-      </article>
+    <div class="ps-content">
+      <span class="ps-eyebrow">✦ Seu Marketing</span>
+      <h2 class="ps-name">Banzai</h2>
+      <p class="ps-role">Branding, Design e Marketing Digital</p>
+      <div class="ps-divider-line"></div>
+      <p class="ps-desc">
+        Marca fraca é receita que fica na mesa. A Banzai trabalha branding, naming, design gráfico e marketing digital — o conjunto que faz um negócio ser reconhecido antes mesmo de ser experimentado. Se você quer que as pessoas lembrem do seu nome, saibam o que você representa e confiem antes de entrar em contato, é aqui que começa.
+      </p>
+      <div class="ps-pills">
+        <span class="ps-pill">Identidade visual e posicionamento</span>
+        <span class="ps-pill">Design gráfico e digital</span>
+        <span class="ps-pill">Marketing digital</span>
+      </div>
+      <div class="ps-actions">
+        <a href="https://banzaibmkt.com.br/" target="_blank" rel="noopener" class="ps-btn ps-btn-main">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Acessar site
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="https://api.whatsapp.com/send?phone=5511983558500" target="_blank" rel="noopener" class="ps-btn ps-btn-ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          WhatsApp
+        </a>
+      </div>
+    </div>
 
-      <!-- ── CARD 2: SITE — Maioli Design ── -->
-      <article class="partner-card" aria-label="Maioli Design - Sites">
-        <div class="card-accent"></div>
-        <div class="card-body-par">
-          <span class="card-tag">✦ Seu Site</span>
-          <h3 class="card-partner-name">Maioli Design</h3>
-          <p class="card-partner-role">Criação de Sites Profissionais</p>
-          <p class="card-desc">
-            Um site feio ou inexistente fala antes de você falar. A Maioli Design cria sites profissionais com foco em qualidade, resultado e presença online — atendendo negócios de diferentes segmentos com soluções sob medida. Além da criação, oferece manutenção, hospedagem, otimização de SEO e UI/UX. O mesmo estúdio que desenvolveu este Guia.
-          </p>
-          <ul class="card-bullets" aria-label="O que resolve">
-            <li><span class="bullet-dot" aria-hidden="true"></span> Criação, manutenção e hospedagem de sites</li>
-            <li><span class="bullet-dot" aria-hidden="true"></span> Otimização SEO para aparecer no Google</li>
-            <li><span class="bullet-dot" aria-hidden="true"></span> Design de interface com foco em conversão</li>
-          </ul>
-        </div>
-        <div class="card-footer-par">
-          <a href="https://maiolidesign.com.br/" target="_blank" rel="noopener" class="btn-site">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Acessar site
-          </a>
-          <a href="https://api.whatsapp.com/send?phone=5511978348787&text=Olá,%20vim%20pelo%20Guia%20Campo%20Belo%20e%20gostaria%20de%20orçamento%20de%20site!" target="_blank" rel="noopener" class="btn-whats">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            Falar no WhatsApp
-          </a>
-        </div>
-      </article>
+  </section>
 
-      <!-- ── CARD 3: VÍDEO — Massago ── -->
-      <article class="partner-card" aria-label="Massago - Audiovisual">
-        <div class="card-accent"></div>
-        <div class="card-body-par">
-          <span class="card-tag">✦ Seu Vídeo</span>
-          <h3 class="card-partner-name">Massago.rec</h3>
-          <p class="card-partner-role">Produção Audiovisual</p>
-          <p class="card-desc">
-            Vídeo parado é dinheiro parado. Guilherme Massago é realizador audiovisual com atuação em direção de fotografia, operação de câmera, montagem e colorização. Produção com olhar apurado, resultado que representa o nível real do seu negócio — e não uma versão amadora dele.
-          </p>
-          <ul class="card-bullets" aria-label="O que resolve">
-            <li><span class="bullet-dot" aria-hidden="true"></span> Direção de fotografia e operação de câmera</li>
-            <li><span class="bullet-dot" aria-hidden="true"></span> Montagem e colorização profissional</li>
-            <li><span class="bullet-dot" aria-hidden="true"></span> Conteúdo audiovisual para redes e apresentações</li>
-          </ul>
-        </div>
-        <div class="card-footer-par">
-          <a href="https://massagorec.myportfolio.com/home" target="_blank" rel="noopener" class="btn-site">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Ver portfólio
-          </a>
-        </div>
-      </article>
 
-      <!-- ── CARD 4: ESCRITÓRIO — Tato Office ── -->
-      <article class="partner-card" aria-label="Tato Office - Coworking">
-        <div class="card-accent"></div>
-        <div class="card-body-par">
-          <span class="card-tag">✦ Seu Escritório</span>
-          <h3 class="card-partner-name">Tato Office Boutique</h3>
-          <p class="card-partner-role">Ambiente de Sucesso — Coworking Premium</p>
-          <p class="card-desc">
-            O ambiente onde você trabalha comunica quem você é — para clientes, parceiros e para você mesmo. O Tato Office Boutique é um espaço de coworking com conceito boutique: presença, exclusividade e o cenário certo para quem quer elevar o nível das reuniões, atendimentos e do próprio trabalho do dia a dia.
-          </p>
-          <ul class="card-bullets" aria-label="O que resolve">
-            <li><span class="bullet-dot" aria-hidden="true"></span> Espaço profissional sem custo fixo de sede</li>
-            <li><span class="bullet-dot" aria-hidden="true"></span> Ambiente de alto padrão para reuniões e atendimentos</li>
-            <li><span class="bullet-dot" aria-hidden="true"></span> Presença e exclusividade no dia a dia de trabalho</li>
-          </ul>
-        </div>
-        <div class="card-footer-par">
-          <a href="https://www.tatocoworking.com.br/" target="_blank" rel="noopener" class="btn-site">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Acessar site
-          </a>
-        </div>
-      </article>
+  <!-- ── 02: MAIOLI DESIGN — Site ── -->
+  <section class="partner-section ps-maioli reverse" id="site" aria-label="Maioli Design - Sites">
 
-    </div><!-- /partner-grid -->
-  </div>
-</section>
+    <div class="ps-img-col">
+      <!-- Troque o src pela imagem real da Maioli -->
+      <img src="/assets/img/lugares/lugares/4/img_69c42054e5f810.24458299.jpg" alt="Maioli Design — Criação de Sites" loading="lazy">
+      <div class="ps-img-num">02</div>
+    </div>
+
+    <div class="ps-accent-bar"></div>
+
+    <div class="ps-content">
+      <span class="ps-eyebrow">✦ Seu Site e Sistema</span>
+      <h2 class="ps-name">Maioli Design</h2>
+      <p class="ps-role">Criação de Sites e Sistemas</p>
+      <div class="ps-divider-line"></div>
+      <p class="ps-desc">
+        Um site feio ou inexistente fala antes de você falar. A Maioli Design cria sites profissionais com foco em qualidade, resultado e presença online — atendendo negócios de diferentes segmentos com soluções sob medida. Além da criação, oferece manutenção, hospedagem, otimização de SEO e UI/UX. O mesmo estúdio que desenvolveu este Guia.
+      </p>
+      <div class="ps-pills">
+        <span class="ps-pill">Criação, manutenção e hospedagem</span>
+        <span class="ps-pill">SEO para aparecer no Google</span>
+        <span class="ps-pill">UI/UX focado em conversão</span>
+      </div>
+      <div class="ps-actions">
+        <a href="https://maiolidesign.com.br/" target="_blank" rel="noopener" class="ps-btn ps-btn-main">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Acessar site
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="https://api.whatsapp.com/send?phone=5511978348787&text=Olá,%20vim%20pelo%20Guia%20Campo%20Belo%20e%20gostaria%20de%20orçamento%20de%20site!" target="_blank" rel="noopener" class="ps-btn ps-btn-ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ── 03: MASSAGO — Vídeo ── -->
+  <section class="partner-section ps-massago" id="video" aria-label="Massago.rec - Audiovisual">
+
+    <div class="ps-img-col">
+      <!-- Troque o src pela imagem real do Massago -->
+      <img src="/assets/img/parceiros/massago.jpg" alt="Massago.rec — Produção Audiovisual" loading="lazy">
+      <div class="ps-img-num">03</div>
+    </div>
+
+    <div class="ps-accent-bar"></div>
+
+    <div class="ps-content">
+      <span class="ps-eyebrow">✦ Seu Vídeo</span>
+      <h2 class="ps-name">Massago Produções</h2>
+      <p class="ps-role">Produção Audiovisual</p>
+      <div class="ps-divider-line"></div>
+      <p class="ps-desc">
+        Vídeo parado é dinheiro parado. Guilherme Massago é realizador audiovisual com atuação em direção de fotografia, operação de câmera, montagem e colorização. Produção com olhar apurado, resultado que representa o nível real do seu negócio — e não uma versão amadora dele.
+      </p>
+      <div class="ps-pills">
+        <span class="ps-pill">Direção de fotografia</span>
+        <span class="ps-pill">Montagem e colorização</span>
+        <span class="ps-pill">Conteúdo para redes e apresentações</span>
+      </div>
+      <div class="ps-actions">
+        <a href="https://massagorec.myportfolio.com/home" target="_blank" rel="noopener" class="ps-btn ps-btn-main">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Ver portfólio
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ── 04: TATO OFFICE — Escritório ── -->
+  <section class="partner-section ps-tato reverse" id="escritorio" aria-label="Tato Office Boutique - Coworking">
+
+    <div class="ps-img-col">
+      <!-- Troque o src pela imagem real do Tato Office -->
+      <img src="/assets/img/lugares/lugares/3/img_69bf41ccabf5b6.05978289.webp" alt="Tato Office Boutique — Coworking Premium" loading="lazy">
+      <div class="ps-img-num">04</div>
+    </div>
+
+    <div class="ps-accent-bar"></div>
+
+    <div class="ps-content">
+      <span class="ps-eyebrow">✦ Seu Escritório</span>
+      <h2 class="ps-name">Tato Office Boutique</h2>
+      <p class="ps-role">Ambiente de Sucesso — Coworking Premium</p>
+      <div class="ps-divider-line"></div>
+      <p class="ps-desc">
+        O ambiente onde você trabalha comunica quem você é — para clientes, parceiros e para você mesmo. O Tato Office Boutique é um espaço de coworking com conceito boutique: presença, exclusividade e o cenário certo para quem quer elevar o nível das reuniões, atendimentos e do próprio trabalho do dia a dia.
+      </p>
+      <div class="ps-pills">
+        <span class="ps-pill">Coworking premium</span>
+        <span class="ps-pill">Salas de reunião</span>
+        <span class="ps-pill">Endereço comercial</span>
+      </div>
+      <div class="ps-actions">
+        <a href="https://tatocoworking.com.br" target="_blank" rel="noopener" class="ps-btn ps-btn-main">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Conhecer espaço
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#" target="_blank" rel="noopener" class="ps-btn ps-btn-ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+
+  </section>
+
+</div><!-- /#parceiros -->
 
 
 <!-- ══════════════════════════════════════════
-     COMO ESCOLHER — 3 PASSOS
+     COMO ESCOLHER
 ══════════════════════════════════════════ -->
 <section class="como-section">
   <div class="container">
 
-    <div class="row">
-      <div class="col-12 col-lg-7">
-        <span class="eyebrow-par">Como escolher</span>
-        <h2 class="section-title">Três passos.<br>Zero desperdício.</h2>
-        <p class="section-sub">Não precisa resolver tudo de uma vez. O segredo é começar pelo que trava mais.</p>
-      </div>
-    </div>
+    <span class="eyebrow-par">Por onde começar?</span>
+    <h2 class="section-title" style="color:#fff">Simples assim.</h2>
+    <p class="section-sub" style="color:rgba(255,255,255,.45)">Não precisa resolver tudo de uma vez. Escolha a frente mais urgente e comece por ela.</p>
 
     <div class="steps-row">
 
       <div class="step-card">
         <div class="step-num">01</div>
         <div class="step-pill">Diagnóstico</div>
-        <h3 class="step-title">Onde está o buraco?</h3>
-        <p class="step-desc">Identifique o que está mais fraco hoje: marca sem identidade, site ausente, conteúdo sem vídeo ou sem um espaço profissional. Comece por aí.</p>
+        <h3 class="step-title">Identifique o gargalo.</h3>
+        <p class="step-desc">Marca fraca? Site inexistente? Sem vídeo? Sem espaço profissional? Escolha a frente que está travando seu negócio agora.</p>
       </div>
 
       <div class="step-card">
         <div class="step-num">02</div>
-        <div class="step-pill">Ação</div>
-        <h3 class="step-title">Contrate um parceiro.</h3>
-        <p class="step-desc">Entre em contato com o parceiro que resolve o seu problema agora. Cada um foi escolhido a dedo — você não vai precisar explicar do zero o que quer.</p>
+        <div class="step-pill">Contato</div>
+        <h3 class="step-title">Fale com o parceiro certo.</h3>
+        <p class="step-desc">Cada um foi escolhido a dedo — você não vai precisar explicar do zero o que quer.</p>
       </div>
 
       <div class="step-card">

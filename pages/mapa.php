@@ -25,7 +25,7 @@ $lugares_db = DB::query(
      FROM lugares l JOIN categorias c ON c.id=l.categoria_id
      LEFT JOIN fotos f ON f.lugar_id=l.id AND f.principal=1
      WHERE l.ativo=1 AND l.lat IS NOT NULL AND l.lng IS NOT NULL
-     ORDER BY l.destaque DESC,l.rating DESC");
+     ORDER BY aberto DESC, l.destaque DESC, l.rating DESC");
 
 /* Fallback mock se não houver dados */
 if (empty($lugares_db)) {

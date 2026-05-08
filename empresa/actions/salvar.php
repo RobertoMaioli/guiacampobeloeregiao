@@ -29,12 +29,15 @@ $cat_id      = (int)($raw['categoria_id'] ?? 0);
 $cat_label   = Sanitize::str($raw['cat_label'] ?? '');
 $descricao   = Sanitize::str($raw['descricao'] ?? '', 2000);
 $endereco    = Sanitize::str($raw['endereco'] ?? '');
+$endereco_numero = Sanitize::str($raw['endereco_numero'] ?? '');
 $bairro      = Sanitize::str($raw['bairro'] ?? '');
 $cep         = Sanitize::str($raw['cep'] ?? '');
 $telefone    = Sanitize::str($raw['telefone'] ?? '');
 $whatsapp    = Sanitize::str($raw['whatsapp'] ?? '');
 $site        = Sanitize::str($raw['site'] ?? '');
 $instagram   = Sanitize::str($raw['instagram'] ?? '');
+$cpf_cnpj    = preg_replace('/\D/', '', $raw['cpf_cnpj'] ?? '');
+$tipo_pessoa = in_array($raw['tipo_pessoa'] ?? '', ['pf','pj']) ? $raw['tipo_pessoa'] : 'pf';
 
 if (!$nome) {
     echo json_encode(['ok'=>false,'erro'=>'Nome obrigatório.']); exit;
@@ -44,43 +47,50 @@ if (!$nome) {
 $slug_base = Sanitize::slug($nome);
 $slug      = $slug_base;
 $suffix    = 1;
-while (DB::row('SELECT id FROM lugares WHERE slug=? AND id<>?',[$slug, $lugar_id ?: 0])) {
+while (DB::row('SELECT id FROM lugares WHERE slug=? AND id<>?', [$slug, $lugar_id ?: 0])) {
     $slug = $slug_base . '-' . $suffix++;
 }
 
 try {
+    // Salva CPF/CNPJ na empresa se informado
+    if ($cpf_cnpj) {
+        DB::exec(
+            'UPDATE empresas SET cpf_cnpj = ?, tipo_pessoa = ? WHERE id = ?',
+            [$cpf_cnpj, $tipo_pessoa, $empresa_id]
+        );
+    }
+
     if ($lugar_id) {
         // Atualiza rascunho existente
         DB::exec(
             'UPDATE lugares SET
                 nome=?, slug=?, categoria_id=?, cat_label=?, descricao=?,
-                endereco=?, bairro=?, cep=?, telefone=?, whatsapp=?,
+                endereco=?, endereco_numero=?, bairro=?, cep=?, telefone=?, whatsapp=?,
                 site=?, instagram=?, atualizado_em=NOW()
              WHERE id=? AND empresa_id=?',
             [$nome,$slug,$cat_id?:null,$cat_label,$descricao,
-             $endereco,$bairro,$cep,$telefone,$whatsapp,
+             $endereco,$endereco_numero,$bairro,$cep,$telefone,$whatsapp,
              $site,$instagram,$lugar_id,$empresa_id]
         );
     } else {
         // Cria novo rascunho
         DB::exec(
             'INSERT INTO lugares
-                (empresa_id,nome,slug,categoria_id,cat_label,descricao,
-                 endereco,bairro,cep,telefone,whatsapp,site,instagram,
-                 ativo,plano,criado_em)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0,"essencial",NOW())',
+                (empresa_id, nome, slug, categoria_id, cat_label, descricao,
+                 endereco, endereco_numero, bairro, cep, telefone, whatsapp, site, instagram,
+                 ativo, plano, criado_em)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,"essencial",NOW())',
             [$empresa_id,$nome,$slug,$cat_id?:null,$cat_label,$descricao,
-             $endereco,$bairro,$cep,$telefone,$whatsapp,$site,$instagram]
+             $endereco,$endereco_numero,$bairro,$cep,$telefone,$whatsapp,$site,$instagram]
         );
         $lugar_id = (int)DB::lastId();
-
         // Vincula lugar à empresa
-        DB::exec('UPDATE empresas SET lugar_id=? WHERE id=?',[$lugar_id,$empresa_id]);
+        DB::exec('UPDATE empresas SET lugar_id=? WHERE id=?', [$lugar_id, $empresa_id]);
     }
 
-    echo json_encode(['ok'=>true,'lugar_id'=>$lugar_id]);
+    echo json_encode(['ok' => true, 'lugar_id' => $lugar_id]);
 
 } catch (Exception $e) {
-    error_log('[salvar] '.$e->getMessage());
-    echo json_encode(['ok'=>false,'erro'=>'Erro ao salvar.']);
+    error_log('[salvar] ' . $e->getMessage());
+    echo json_encode(['ok' => false, 'erro' => 'Erro ao salvar.']);
 }

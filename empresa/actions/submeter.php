@@ -89,7 +89,11 @@ try {
         } catch (Exception $ex) { error_log('[mail admin-nova-empresa] ' . $ex->getMessage()); }
     }
 
-    echo json_encode(['ok'=>true]);
+    $plan_intent = $usuario_data['plan_intent'] ?? 'essencial';
+    echo json_encode([
+        'ok'   => true,
+        'plano' => $plan_intent,
+    ]);
 
 } catch(Exception $e) {
     error_log('[submeter] '.$e->getMessage());

@@ -193,7 +193,35 @@ body { background: var(--gcb-offwhite) }
 <div class="onb-panel active" id="panel-0">
   <div class="onb-card">
     <div class="card-ttl"><?= icon('building', 17) ?> Sobre a empresa</div>
-
+    
+    <!-- Tipo de pessoa + CPF/CNPJ -->
+    <div class="mb-3">
+      <label class="olbl">Você é</label>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <label id="lbl-pf" onclick="toggleTipo('pf')"
+               style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;
+                      border-radius:12px;border:2px solid var(--gcb-gold);background:var(--gcb-gold-pale);
+                      cursor:pointer;font-size:13px;font-weight:600">
+          <input type="radio" name="tipo_pessoa" id="r-pf" value="pf" checked
+                 style="accent-color:var(--gcb-green-dark)">
+          Pessoa Física
+        </label>
+        <label id="lbl-pj" onclick="toggleTipo('pj')"
+               style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;
+                      border-radius:12px;border:1.5px solid rgba(61,71,51,.12);
+                      cursor:pointer;font-size:13px;font-weight:600">
+          <input type="radio" name="tipo_pessoa" id="r-pj" value="pj"
+                 style="accent-color:var(--gcb-green-dark)">
+          Pessoa Jurídica
+        </label>
+      </div>
+      <label class="olbl" id="label-doc">CPF *</label>
+      <input type="text" class="gcb-field" id="f-cpf_cnpj"
+             placeholder="000.000.000-00" maxlength="18"
+             inputmode="numeric" oninput="mascaraDoc(this); autoSave()"
+             value="<?= htmlspecialchars(DB::row('SELECT cpf_cnpj, tipo_pessoa FROM empresas WHERE id=?', [$empresa_id])['cpf_cnpj'] ?? '', ENT_QUOTES) ?>">
+    </div>
+    
     <!-- Nome -->
     <div class="mb-3">
       <label class="olbl">Nome da empresa *</label>
@@ -262,13 +290,19 @@ body { background: var(--gcb-offwhite) }
     <!-- Bairro + CEP lado a lado -->
     <!-- Ao digitar o CEP completo (8 dígitos), buscarCep() preenche
          logradouro (se vazio) e bairro automaticamente via ViaCEP -->
-    <div class="g2">
-    	<div>
-        
-        <label class="olbl">Endereço completo *</label>
-      <input type="text" class="gcb-field" id="f-endereco"
-             placeholder="Rua, número, bairro"
-             value="<?= $v('endereco') ?>" oninput="autoSave()">
+    <div style="display:grid;grid-template-columns:1fr 120px 1fr;gap:10px"
+     class="mb-3">
+      <div>
+        <label class="olbl">Endereço *</label>
+        <input type="text" class="gcb-field" id="f-endereco"
+               placeholder="Rua das Flores"
+               value="<?= $v('endereco') ?>" oninput="autoSave()">
+      </div>
+      <div>
+        <label class="olbl">Número *</label>
+        <input type="text" class="gcb-field" id="f-endereco_numero"
+               placeholder="123"
+               value="<?= $v('endereco_numero') ?>" oninput="autoSave()">
       </div>
       <div>
         <label class="olbl">Bairro</label>
@@ -276,7 +310,6 @@ body { background: var(--gcb-offwhite) }
                placeholder="Campo Belo"
                value="<?= $v('bairro') ?>" oninput="autoSave()">
       </div>
-      
     </div>
   </div>
 
@@ -555,12 +588,21 @@ function validar(step) {
     if (document.getElementById('f-descricao').value.trim().length < 20) {
       alert('A descrição deve ter ao menos 20 caracteres.'); return false;
     }
+    const cpf = document.getElementById('f-cpf_cnpj').value.replace(/\D/g,'');
+    const pj  = document.getElementById('r-pj')?.checked;
+    if ((pj && cpf.length !== 14) || (!pj && cpf.length !== 11)) {
+      alert(pj ? 'Informe um CNPJ válido.' : 'Informe um CPF válido.'); return false;
+    }
   }
   if (step === 1) {
     if (!document.getElementById('f-endereco').value.trim()) {
-      alert('Informe o endereço.'); return false;
+        alert('Informe o endereço.'); return false;
     }
-  }
+    if (!document.getElementById('f-telefone').value.trim() &&
+            !document.getElementById('f-whatsapp').value.trim()) {
+        alert('Informe pelo menos um telefone de contato.'); return false;
+        }
+    }
   return true;
 }
 
@@ -588,13 +630,16 @@ async function salvar() {
     categoria_id: g('f-categoria_id'),
     cat_label:    g('f-cat_label'),
     descricao:    g('f-descricao'),
-    endereco:     g('f-endereco'),
-    bairro:       g('f-bairro'),
+    endereco:        g('f-endereco'),
+    endereco_numero: g('f-endereco_numero'),
+    bairro:          g('f-bairro'),
     cep:          g('f-cep'),
     telefone:     g('f-telefone'),
     whatsapp:     g('f-whatsapp'),
     site:         g('f-site'),
     instagram:    g('f-instagram'),
+    cpf_cnpj:     g('f-cpf_cnpj').replace(/\D/g, ''),
+    tipo_pessoa:  document.querySelector('input[name="tipo_pessoa"]:checked')?.value ?? 'pf',
   };
   try {
     const r = await fetch('/empresa/actions/salvar.php', {
@@ -799,8 +844,12 @@ async function submeter() {
     });
     const d = await r.json();
     if (d.ok) {
-      window.location.href = '/empresa/status.php';
-    } else {
+      if (d.plano === 'profissional' || d.plano === 'premium') {
+        window.location.href = '/empresa/plano.php?origem=onboarding';
+      } else {
+        window.location.href = '/empresa/status.php';
+      }
+} else {
       alert(d.erro || 'Erro. Tente novamente.');
       btn.disabled = false;
       btn.textContent = 'Enviar para análise ✓';
@@ -810,6 +859,55 @@ async function submeter() {
     btn.disabled = false;
     btn.textContent = 'Enviar para análise ✓';
   }
+}
+</script>
+
+<script>
+    function toggleTipo(tipo) {
+  const lblPf = document.getElementById('lbl-pf');
+  const lblPj = document.getElementById('lbl-pj');
+  const label = document.getElementById('label-doc');
+  const input = document.getElementById('f-cpf_cnpj');
+
+  if (tipo === 'pf') {
+    lblPf.style.borderColor = 'var(--gcb-gold)';
+    lblPf.style.background  = 'var(--gcb-gold-pale)';
+    lblPj.style.borderColor = 'rgba(61,71,51,.12)';
+    lblPj.style.background  = '';
+    label.textContent = 'CPF *';
+    input.placeholder = '000.000.000-00';
+    input.maxLength   = 14;
+    input.value       = '';
+  } else {
+    lblPj.style.borderColor = 'var(--gcb-gold)';
+    lblPj.style.background  = 'var(--gcb-gold-pale)';
+    lblPf.style.borderColor = 'rgba(61,71,51,.12)';
+    lblPf.style.background  = '';
+    label.textContent = 'CNPJ *';
+    input.placeholder = '00.000.000/0000-00';
+    input.maxLength   = 18;
+    input.value       = '';
+  }
+  autoSave();
+}
+
+function mascaraDoc(input) {
+  let v = input.value.replace(/\D/g, '');
+  const pj = document.getElementById('r-pj')?.checked;
+
+  if (pj) {
+    v = v.substring(0, 14);
+    v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+    v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+    v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  } else {
+    v = v.substring(0, 11);
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+    v = v.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+  }
+  input.value = v;
 }
 </script>
 
