@@ -74,7 +74,7 @@ function handlePagamentoConfirmado(?string $sub_id, ?string $pagamento_id, float
     $payment_link = $payload['payment']['paymentLink'] ?? null;
 
     // ── Evento Guia Connect — trata separado e encerra ─────────────────
-    if ($payment_link === 'bjhre1nsdqwojhlw') {
+    if ($payment_link === ASAAS_PAYMENT_LINK_ID) {
         handleEventoGuiaConnect($pagamento_id, $customer_id);
         return;
     }
