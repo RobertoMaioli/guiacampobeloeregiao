@@ -372,7 +372,7 @@ function handleEventoGuiaConnect(?string $pagamento_id, ?string $customer_id): v
     $qrConteudo = "GUIACONNECT|{$token}|{$email_cliente}";
     $qrFilename = 'qr_' . $token . '.png';
     $qrPath     = __DIR__ . '/../uploads/qrcodes/' . $qrFilename;
-    $qrUrl      = 'https://gcbr.maiolidesign.com.br/uploads/qrcodes/' . $qrFilename;
+    $qrUrl      = SITE_URL . '/uploads/qrcodes/' . $qrFilename;
 
     error_log('[guia-connect] gerando QR Code em: ' . $qrPath);
 
