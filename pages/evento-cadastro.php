@@ -3,6 +3,7 @@
  * pages/evento-cadastro.php
  * Inscrição Guia Connect — Soft Opening
  */
+require_once __DIR__ . '/../config/asaas.php';
 session_start();
 $flash    = $_SESSION['flash_evento'] ?? null;
 unset($_SESSION['flash_evento']);
@@ -10,9 +11,7 @@ unset($_SESSION['flash_evento']);
 $page_title = 'Guia Connect — Soft Opening · Guia Campo Belo & Região';
 $meta_desc  = 'Reserve sua vaga no Soft Opening do Guia Connect com experiência de cafés do Bares SP.';
 $canonical  = 'https://guiacampobeloeregiao.com.br/pages/evento-cadastro.php';
-
-require_once __DIR__ . '/../config/asaas.php';
-$ASAAS_URL = ASAAS_PAYMENT_LINK;
+$ASAAS_URL  = ASAAS_PAYMENT_LINK;
 
 ?>
 <!DOCTYPE html>
