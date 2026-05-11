@@ -50,60 +50,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!Sanitize::csrfValid($_POST['_token'] ?? '')) {
         $erro = 'Sessão inválida. Recarregue a página.';
     } else {
-        $nome  = Sanitize::post('nome');
-        $email = Sanitize::post('email', 'email');
-        $senha = $_POST['senha'] ?? '';
-        $plan_intent = in_array($_POST['plan_intent'] ?? '', $planos_validos)
-                     ? $_POST['plan_intent'] : 'essencial';
-
-        if (mb_strlen($nome) < 2) {
-            $erro = 'Informe seu nome completo.';
-        } elseif (!$email) {
-            $erro = 'Informe um e-mail válido.';
-        } elseif (mb_strlen($senha) < 8) {
-            $erro = 'A senha deve ter pelo menos 8 caracteres.';
-        } elseif (DB::row('SELECT id FROM usuarios WHERE email = ?', [$email])) {
-            $erro = 'Este e-mail já está cadastrado. <a href="/empresa/login.php" style="color:#c0392b;font-weight:700">Entrar</a>';
+        // ── Rate limit: máx 3 cadastros por IP a cada hora ──
+        require_once __DIR__ . '/../core/RateLimit.php';
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        if (!RateLimit::allow('cadastro', $ip, 3, 3600, 7200)) {
+            $erro = 'Muitas tentativas deste endereço. Aguarde e tente novamente.';
         } else {
-            DB::beginTransaction();
-            try {
-                DB::exec(
-                    'INSERT INTO usuarios (nome, email, senha_hash, plan_intent, criado_em)
-                     VALUES (?, ?, ?, ?, NOW())',
-                    [$nome, $email,
-                     password_hash($senha, PASSWORD_BCRYPT, ['cost' => 12]),
-                     $plan_intent]
-                );
-                $usuario_id = (int) DB::lastId();
 
-                DB::exec(
-                    'INSERT INTO empresas (usuario_id, plan_intent, status, criado_em)
-                     VALUES (?, ?, "rascunho", NOW())',
-                    [$usuario_id, $plan_intent]
-                );
+            $nome  = Sanitize::post('nome');
+            $email = Sanitize::post('email', 'email');
+            $senha = $_POST['senha'] ?? '';
+            $plan_intent = in_array($_POST['plan_intent'] ?? '', $planos_validos)
+                         ? $_POST['plan_intent'] : 'essencial';
 
-                DB::commit();
-
-                UserAuth::login($email, $senha);
-
-                // E-mail #1 — Boas-vindas
+            if (mb_strlen($nome) < 2) {
+                $erro = 'Informe seu nome completo.';
+            } elseif (!$email) {
+                $erro = 'Informe um e-mail válido.';
+            } elseif (mb_strlen($senha) < 8) {
+                $erro = 'A senha deve ter pelo menos 8 caracteres.';
+            } elseif (DB::row('SELECT id FROM usuarios WHERE email = ?', [$email])) {
+                $erro = 'Este e-mail já está cadastrado. <a href="/empresa/login.php" style="color:#c0392b;font-weight:700">Entrar</a>';
+            } else {
+                DB::beginTransaction();
                 try {
-                    require_once __DIR__ . '/../core/Mailer.php';
-                    $nome  = $nome;
-                    $plano = $plan_intent;
-                    $html = _renderEmail(__DIR__ . '/../emails/boas-vindas.php', ['nome' => $nome, 'email' => $email, 'plano' => $plan_intent]);
-                    Mailer::send($email, $nome, 'Bem-vindo ao Guia Campo Belo & Região', $html);
-                } catch (Exception $ex) { error_log('[mail boas-vindas] ' . $ex->getMessage()); }
+                    DB::exec(
+                        'INSERT INTO usuarios (nome, email, senha_hash, plan_intent, criado_em)
+                         VALUES (?, ?, ?, ?, NOW())',
+                        [$nome, $email,
+                         password_hash($senha, PASSWORD_BCRYPT, ['cost' => 12]),
+                         $plan_intent]
+                    );
+                    $usuario_id = (int) DB::lastId();
 
-                header('Location: /empresa/onboarding.php');
-                exit;
+                    DB::exec(
+                        'INSERT INTO empresas (usuario_id, plan_intent, status, criado_em)
+                         VALUES (?, ?, "rascunho", NOW())',
+                        [$usuario_id, $plan_intent]
+                    );
 
-            } catch (Exception $e) {
-                DB::rollback();
-                error_log('[cadastro] ' . $e->getMessage());
-                $erro = 'Erro ao criar a conta. Tente novamente.';
+                    DB::commit();
+
+                    UserAuth::login($email, $senha);
+
+                    // E-mail #1 — Boas-vindas
+                    try {
+                        require_once __DIR__ . '/../core/Mailer.php';
+                        $nome  = $nome;
+                        $plano = $plan_intent;
+                        $html = _renderEmail(__DIR__ . '/../emails/boas-vindas.php', ['nome' => $nome, 'email' => $email, 'plano' => $plan_intent]);
+                        Mailer::send($email, $nome, 'Bem-vindo ao Guia Campo Belo & Região', $html);
+                    } catch (Exception $ex) { error_log('[mail boas-vindas] ' . $ex->getMessage()); }
+
+                    header('Location: /empresa/onboarding.php');
+                    exit;
+
+                } catch (Exception $e) {
+                    DB::rollback();
+                    error_log('[cadastro] ' . $e->getMessage());
+                    $erro = 'Erro ao criar a conta. Tente novamente.';
+                }
             }
-        }
+
+        } // fecha else do rate limit
     }
 }
 

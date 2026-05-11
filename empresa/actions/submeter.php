@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../../core/UserAuth.php';
 require_once __DIR__ . '/../../core/DB.php';
 require_once __DIR__ . '/../../core/Sanitize.php';
+require_once __DIR__ . '/../../core/RateLimit.php';
 
 function _renderEmail(string $path, array $vars = []): string {
     extract($vars);
@@ -22,6 +23,12 @@ $raw = json_decode(file_get_contents('php://input'), true) ?? [];
 
 if (!Sanitize::csrfValid($raw['_token'] ?? '')) {
     echo json_encode(['ok'=>false,'erro'=>'Token inválido.']); exit;
+}
+
+// ── Rate limit: máx 3 submissões por IP por hora ──
+$ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+if (!RateLimit::allow('submeter', $ip, 3, 3600, 7200)) {
+    echo json_encode(['ok'=>false,'erro'=>'Muitas tentativas. Aguarde e tente novamente.']); exit;
 }
 
 $usuario    = UserAuth::current();
@@ -91,7 +98,7 @@ try {
 
     $plan_intent = $usuario_data['plan_intent'] ?? 'essencial';
     echo json_encode([
-        'ok'   => true,
+        'ok'    => true,
         'plano' => $plan_intent,
     ]);
 
