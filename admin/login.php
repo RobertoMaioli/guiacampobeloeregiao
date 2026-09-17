@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'method'  => 'POST',
                     'header'  => 'Content-Type: application/x-www-form-urlencoded',
                     'content' => http_build_query([
-                        'secret'   => '0x4AAAAAAC-jyx9HkvIlwnbunU-So2xyHGU',
+                        'secret'   => '0x4AAAAAACzHCVgkYcexPpzay4BRYcHapUI',
                         'response' => $turnstileToken,
                         'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
                     ]),
@@ -268,7 +268,7 @@ $csrf = Sanitize::csrfToken();
 
                 <!-- Cloudflare Turnstile Widget -->
                 <div class="cf-turnstile"
-                     data-sitekey="0x4AAAAAAC-jy6CfuJSkRqaN"
+                     data-sitekey="0x4AAAAAACzHCfnzOpQH45p_"
                      data-theme="light">
                 </div>
 

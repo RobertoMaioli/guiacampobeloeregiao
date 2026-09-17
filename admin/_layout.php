@@ -18,7 +18,8 @@ $menu = [
     ['href' => '/admin/avaliacoes/index.php', 'icon' => 'star',     'label' => 'Avaliações'],
     ['href' => '/admin/servicos/index.php',   'icon' => 'verified', 'label' => 'Serviços'],
     ['href' => '/admin/tags/index.php',       'icon' => 'sparkles', 'label' => 'Tags'],
-    ['href' => '/admin/assinaturas/index.php', 'icon' => 'credit-card', 'label' => 'Assinaturas'],
+    ['href' => '/admin/qrcodes/index.php',    'icon' => 'qrcode',   'label' => 'QR Codes'],
+    ['href' => '/admin/prospects/index.php',  'icon' => 'clipboard','label' => 'Cadastros de Campo'],
 ];
 
 $svgIcons = [
@@ -28,8 +29,9 @@ $svgIcons = [
     'star'     => '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
     'verified' => '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
     'sparkles' => '<path d="M12 3v3m0 12v3M3 12h3m12 0h3m-2.636-7.364-2.122 2.122M8.757 15.243l-2.121 2.121m0-12.728 2.121 2.121m6.364 6.364 2.122 2.121"/>',
+    'qrcode'   => '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM14 20h3M20 14v3M20 20h.01"/>',
+    'clipboard'=> '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M9 12h6M9 16h6M9 8h1"/>',
     'users'    => '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-    'credit-card' => '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
 ];
 ?>
 <!DOCTYPE html>

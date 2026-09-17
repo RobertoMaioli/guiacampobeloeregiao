@@ -29,3 +29,9 @@ composer.lock
 # ── Ambiente ──────────────────────────────────────────────
 .env
 .env.local
+
+# ── QR Codes gerados dinamicamente ─────────────────────────
+uploads/qrcodes/
+
+# ── Validação SSL (Let's Encrypt/certbot) ──────────────────
+.well-known/acme-challenge/

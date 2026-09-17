@@ -34,7 +34,7 @@ ob_start(); ?>
 <!-- Dados do evento -->
 <div class="highlight">
   <p><strong>Evento:</strong> Guia Connect — Soft Opening</p>
-  <p><strong>Data:</strong> Segunda, 19 de maio de 2025</p>
+  <p><strong>Data:</strong> Segunda, 19 de maio de 2026</p>
   <p><strong>Horário:</strong> A partir das 19h</p>
   <p><strong>Local:</strong> Cris Parilla — Rua República do Iraque, 1326, Campo Belo</p>
 </div>

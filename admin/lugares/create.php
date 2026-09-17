@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'cat_label'       => $cat_lbl,
                 'badge'           => Sanitize::post('badge') ?: null,
                 'endereco'        => Sanitize::post('endereco'),
+                'endereco_numero' => Sanitize::post('endereco_numero'),
                 'bairro'          => Sanitize::post('bairro'),
                 'cep'             => Sanitize::post('cep'),
                 'lat'             => Sanitize::post('lat','float') ?: null,
@@ -416,10 +417,15 @@ include __DIR__ . '/../_layout.php';
         <div class="form-card">
             <h3 class="form-card-title">Localização</h3>
             <div class="row g-3">
-                <div class="col-12">
+                <div class="col-12 col-sm-8">
                     <label class="form-label-admin">Endereço completo</label>
                     <input type="text" name="endereco" value="<?= $v('endereco') ?>"
-                           class="form-field" placeholder="R. Lagoa Santa, 230 — Campo Belo"/>
+                           class="form-field" placeholder="R. Lagoa Santa — Campo Belo"/>
+                </div>
+                <div class="col-12 col-sm-4">
+                    <label class="form-label-admin">Número</label>
+                    <input type="text" name="endereco_numero" value="<?= $v('endereco_numero') ?>"
+                           class="form-field" placeholder="230"/>
                 </div>
                 <div class="col-12 col-sm-6">
                     <label class="form-label-admin">Bairro</label>

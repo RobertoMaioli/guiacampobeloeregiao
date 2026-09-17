@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GUIA CONNECT · Pacto de Convivência — Guia Campo Belo &amp; Região</title>
+<meta name="description" content="Os compromissos que sustentam a rede de empresários do Campo Belo, Brooklin e Moema. Respeito, reciprocidade e discrição.">
+<link rel="canonical" href="https://guiacampobeloeregiao.com.br/pacto">
+
+<!-- Preview do link no WhatsApp -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Guia Campo Belo &amp; Região">
+<meta property="og:title" content="GUIA CONNECT · Pacto de Convivência">
+<meta property="og:description" content="Menos grupo. Mais comunidade. Os compromissos da rede de empresários do Campo Belo, Brooklin e Moema.">
+<meta property="og:url" content="https://guiacampobeloeregiao.com.br/pacto">
+<meta property="og:image" content="https://guiacampobeloeregiao.com.br/assets/img/og-pacto.jpg"><!-- [CONFIRMAR] criar imagem 1200x630 -->
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   GUIA CONNECT · Pacto de Convivência
+   Tudo escopado em .pacto para não colidir com o CSS do site.
+   ============================================================ */
+
+.pacto{
+  --verde:#3d4733;
+  --dourado:#c9aa6b;
+  --areia:#d2b48c;
+  --cinza:#8b8589;
+  --grafite:#1d1d1b;
+  --papel:#fbfaf7;
+  --linha:rgba(61,71,51,.14);
+
+  --h1:clamp(2.1rem,6vw,3rem);
+  --h2:clamp(1.5rem,3.4vw,2.25rem);
+  --h3:1.125rem;
+
+  font-family:'Montserrat',system-ui,-apple-system,sans-serif;
+  color:var(--grafite);
+  background:var(--papel);
+  line-height:1.65;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+}
+.pacto *,.pacto *::before,.pacto *::after{box-sizing:border-box}
+.pacto p,.pacto ul,.pacto h1,.pacto h2,.pacto h3{margin:0}
+.pacto ul{list-style:none;padding:0}
+
+.pacto .wrap{width:min(760px,calc(100% - 2.5rem));margin-inline:auto}
+
+/* ---------- Rótulos e blocos ---------- */
+.pacto .eyebrow{
+  font-size:.72rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dourado);
+}
+.pacto .sec{padding:3.25rem 0;border-top:1px solid var(--linha)}
+.pacto .sec:first-of-type{border-top:0}
+.pacto .sec__num{
+  display:block;font-size:.72rem;font-weight:600;letter-spacing:.22em;
+  color:var(--cinza);margin-bottom:.55rem;
+}
+.pacto h2{
+  font-size:var(--h2);font-weight:300;line-height:1.15;color:var(--verde);
+  letter-spacing:-.015em;margin-bottom:1.25rem;
+}
+.pacto h2 em{font-style:normal;font-weight:600}
+.pacto .lead{font-size:1.0625rem;color:#4a4a46;max-width:58ch}
+.pacto .lead + .lead{margin-top:1rem}
+
+/* ---------- Capa ---------- */
+.pacto .hero{
+  background:var(--verde);color:#f4f2ec;
+  padding:3.5rem 0 3rem;position:relative;overflow:hidden;
+}
+.pacto .hero::after{ /* grafismo: repetição discreta */
+  content:"";position:absolute;inset:auto -10% -55% auto;width:340px;height:340px;
+  border-radius:50%;border:1px solid rgba(201,170,107,.22);
+}
+.pacto .hero .wrap{position:relative;z-index:1}
+.pacto .hero h1{
+  font-size:var(--h1);font-weight:300;line-height:1.05;letter-spacing:-.02em;
+  margin:1rem 0 1.25rem;
+}
+.pacto .hero h1 strong{display:block;font-weight:600}
+.pacto .hero p{color:rgba(244,242,236,.82);max-width:52ch}
+.pacto .hero .meta{
+  margin-top:2rem;padding-top:1.25rem;border-top:1px solid rgba(201,170,107,.3);
+  font-size:.78rem;letter-spacing:.06em;color:rgba(244,242,236,.6);
+}
+
+/* ---------- Três princípios ---------- */
+.pacto .principios{display:grid;gap:1px;background:var(--linha);border:1px solid var(--linha)}
+.pacto .principios li{background:var(--papel);padding:1.5rem}
+.pacto .principios h3{
+  font-size:var(--h3);font-weight:600;color:var(--verde);margin-bottom:.4rem;
+}
+.pacto .principios p{font-size:.95rem;color:#55554f}
+@media(min-width:680px){.pacto .principios{grid-template-columns:repeat(3,1fr)}}
+
+/* ---------- Assinatura: a semana ---------- */
+.pacto .semana{display:grid;gap:.5rem}
+.pacto .dia{
+  display:grid;grid-template-columns:2.75rem 1fr;align-items:center;gap:1rem;
+  padding:.85rem 1rem;border:1px solid var(--linha);background:#fff;
+}
+.pacto .dia__sigla{
+  width:2.75rem;height:2.75rem;display:grid;place-items:center;border-radius:50%;
+  font-size:.8rem;font-weight:600;letter-spacing:.02em;
+  background:var(--verde);color:#f4f2ec;
+}
+.pacto .dia__txt strong{display:block;font-size:.95rem;font-weight:600;color:var(--grafite)}
+.pacto .dia__txt span{font-size:.875rem;color:#65655f}
+.pacto .dia--oficial .dia__sigla{background:transparent;color:var(--verde);border:1px solid var(--verde)}
+.pacto .dia--conexao{border-color:var(--dourado);background:rgba(201,170,107,.09)}
+.pacto .dia--conexao .dia__sigla{background:var(--dourado);color:var(--grafite)}
+.pacto .dia--fds .dia__sigla{background:var(--areia);color:var(--grafite)}
+.pacto .semana__nota{
+  margin-top:1.25rem;font-size:.9rem;color:#65655f;
+  border-left:2px solid var(--dourado);padding-left:1rem;
+}
+
+/* ---------- Listas de itens ---------- */
+.pacto .itens li{
+  position:relative;padding:.6rem 0 .6rem 1.5rem;font-size:.98rem;color:#4a4a46;
+  border-bottom:1px solid var(--linha);
+}
+.pacto .itens li:last-child{border-bottom:0}
+.pacto .itens li::before{
+  content:"";position:absolute;left:0;top:1.15rem;width:6px;height:1px;background:var(--dourado);
+}
+
+/* ---------- Caixa de destaque ---------- */
+.pacto .box{
+  margin-top:1.75rem;padding:1.5rem;background:rgba(61,71,51,.045);
+  border-left:3px solid var(--verde);
+}
+.pacto .box h3{
+  font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--verde);margin-bottom:.6rem;
+}
+.pacto .box p{font-size:.92rem;color:#55554f}
+.pacto .box--legal{border-left-color:var(--dourado);background:rgba(201,170,107,.1)}
+.pacto .box--legal h3{color:#8a6d33}
+
+/* ---------- Moderação ---------- */
+.pacto .escada{counter-reset:passo;display:grid;gap:.5rem}
+.pacto .escada li{
+  display:grid;grid-template-columns:2.25rem 1fr;gap:1rem;align-items:baseline;
+  padding:1rem;border:1px solid var(--linha);background:#fff;
+}
+.pacto .escada li::before{
+  counter-increment:passo;content:counter(passo)"ª";
+  font-weight:600;color:var(--dourado);font-size:.95rem;
+}
+.pacto .escada strong{display:block;font-size:.95rem;color:var(--grafite)}
+.pacto .escada span{font-size:.88rem;color:#65655f}
+
+/* ---------- Fecho ---------- */
+.pacto .fecho{background:var(--verde);color:#f4f2ec;padding:3.5rem 0;text-align:center}
+.pacto .fecho h2{color:#f4f2ec;font-size:var(--h2);margin-bottom:1rem}
+.pacto .fecho h2 strong{font-weight:600;color:var(--dourado)}
+.pacto .fecho p{max-width:44ch;margin-inline:auto;color:rgba(244,242,236,.82);font-size:1rem}
+.pacto .fecho .assinatura{
+  margin-top:2rem;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(201,170,107,.85);
+}
+
+/* ---------- Acessibilidade e impressão ---------- */
+.pacto a{color:var(--verde);text-decoration:underline;text-underline-offset:3px}
+.pacto a:focus-visible{outline:2px solid var(--dourado);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.pacto *{animation:none!important;transition:none!important}}
+@media print{
+  .pacto{background:#fff}
+  .pacto .hero,.pacto .fecho{background:#fff;color:var(--grafite)}
+  .pacto .hero p,.pacto .fecho p{color:#444}
+  .pacto .hero::after{display:none}
+  .pacto .sec{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<main class="pacto">
+
+  <!-- CAPA -->
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Campo Belo · Brooklin · Moema</p>
+      <h1>GUIA CONNECT<strong>Pacto de Convivência</strong></h1>
+      <p>A rede de empresários da região. Um espaço construído sobre confiança, reciprocidade e negócios com propósito — e sustentado pelos compromissos abaixo.</p>
+      <p class="meta">Documento oficial · Guia Campo Belo &amp; Região · Versão 1 · vigente desde [CONFIRMAR]</p>
+    </div>
+  </header>
+
+  <!-- 01 -->
+  <section class="sec">
+    <div class="wrap">
+      <span class="sec__num">01 · Fundamento</span>
+      <h2>Por que <em>existimos</em></h2>
+      <p class="lead">O GUIA CONNECT nasce de uma convicção simples: negócios fortes constroem bairros fortes.</p>
+      <p class="lead">Aqui, cada indicação é um voto de confiança. Cada parceria, um investimento na economia que sustenta a nossa própria rua. Consumir local, indicar local, fortalecer local — esse é o ciclo que move este grupo e transforma vizinhança em negócio.</p>
+      <p class="lead">Não somos uma lista de contatos. Somos uma comunidade de empresários que se conhecem, se recomendam e crescem juntos. Quando um empreendedor da região prospera, o bairro inteiro prospera com ele.</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="sec">
+    <div class="wrap">
+      <span class="sec__num">02 · Princípios</span>
+      <h2>O <em>pacto</em></h2>
+      <p class="lead" style="margin-bottom:1.75rem">Três compromissos sustentam tudo o que vem depois.</p>
+      <ul class="principios">
+        <li>
+          <h3>Respeito</h3>
+          <p>Toda interação é cordial e profissional. Divergência é bem-vinda; deselegância, não.</p>
+        </li>
+        <li>
+          <h3>Reciprocidade</h3>
+          <p>Quem só divulga, consome a rede. Quem também indica, responde e conecta, constrói a rede.</p>
+        </li>
+        <li>
+          <h3>Discrição</h3>
+          <p>Contatos, informações comerciais e conversas do grupo não circulam fora dele. O que se compartilha aqui, fica aqui.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 · assinatura da página -->
+  <section class="sec">
+    <div class="wrap">
+      <span class="sec__num">03 · Ritmo</span>
+      <h2>O ritmo das <em>divulgações</em></h2>
+      <p class="lead" style="margin-bottom:1.75rem">Um grupo silencioso morre. Um grupo barulhento é silenciado. O calendário abaixo existe para que a sua mensagem seja efetivamente vista.</p>
+
+      <ul class="semana">
+        <li class="dia">
+          <span class="dia__sigla" aria-hidden="true">SEG</span>
+          <span class="dia__txt"><strong>Segunda</strong><span>Divulgações livres.</span></span>
+        </li>
+        <li class="dia dia--oficial">
+          <span class="dia__sigla" aria-hidden="true">TER</span>
+          <span class="dia__txt"><strong>Terça</strong><span>Grupo aberto apenas a comunicados oficiais.</span></span>
+        </li>
+        <li class="dia">
+          <span class="dia__sigla" aria-hidden="true">QUA</span>
+          <span class="dia__txt"><strong>Quarta</strong><span>Divulgações livres.</span></span>
+        </li>
+        <li class="dia dia--conexao">
+          <span class="dia__sigla" aria-hidden="true">QUI</span>
+          <span class="dia__txt"><strong>Quinta · dia de conexões</strong><span>Perguntas, demandas, pedidos de indicação e trocas entre membros.</span></span>
+        </li>
+        <li class="dia">
+          <span class="dia__sigla" aria-hidden="true">SEX</span>
+          <span class="dia__txt"><strong>Sexta</strong><span>Divulgações livres.</span></span>
+        </li>
+        <li class="dia dia--fds">
+          <span class="dia__sigla" aria-hidden="true">S · D</span>
+          <span class="dia__txt"><strong>Sábado e domingo</strong><span>Programação de fim de semana.</span></span>
+        </li>
+      </ul>
+
+      <p class="semana__nota">Uma publicação por membro, por dia — imagem, vídeo ou texto contam como uma só. Aguarde alguns minutos antes de publicar após outro membro: posts empilhados não são lidos por ninguém. Para eventos, lançamentos ou ações fora do seu escopo habitual, alinhe antes com a administração.</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="sec">
+    <div class="wrap">
+      <span class="sec__num">04 · Negócios</span>
+      <h2>Indicações e <em>negócios</em></h2>
+      <p class="lead">Antes de indicar um profissional de fora, verifique se a competência já existe dentro da rede. A preferência interna é o que dá sentido a este grupo.</p>
+      <p class="lead">Ao indicar alguém, você empresta a sua reputação. Indique com o mesmo critério com que contrataria.</p>
+
+      <div class="box">
+        <h3>Responsabilidade</h3>
+        <p>As empresas aqui são parceiras, não avalizadas. Avalie cada proposta com a diligência de sempre. A administração do GUIA CONNECT e o Guia Campo Belo &amp; Região não intermediam, não garantem e não se responsabilizam por produtos, serviços, pagamentos ou acordos negociados entre participantes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="sec">
+    <div class="wrap">
+      <span class="sec__num">05 · Limites</span>
+      <h2>O que não tem <em>espaço aqui</em></h2>
+      <ul class="itens">
+        <li>Conteúdo político-partidário, religioso ou de natureza polêmica.</li>
+        <li>Manifestações racistas, discriminatórias, de ódio ou de assédio de qualquer espécie — em qualquer grau, sob qualquer pretexto.</li>
+        <li>Abordagem privada com oferta comercial a quem não a autorizou.</li>
+        <li>Links, formulários e convites para outros grupos.</li>
+        <li>Divulgação de eventos de networking de terceiros.</li>
+        <li>Divulgação de profissionais que não integram o GUIA CONNECT.</li>
+        <li>Correntes, notícias falsas e conteúdo não verificado.</li>
+      </ul>
+
+      <div class="box box--legal">
+        <h3>Registro literal</h3>
+        <p>Injúria racial e racismo são crimes previstos na Lei nº 7.716/1989, com a redação dada pela Lei nº 14.532/2023. Nesse caso não há advertência prévia: há remoção imediata e, se cabível, as providências legais.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="sec">
+    <div class="wrap">
+      <span class="sec__num">06 · Privacidade</span>
+      <h2>Privacidade e <em>dados</em></h2>
+      <p class="lead" style="margin-bottom:1.5rem">Conforme a Lei Geral de Proteção de Dados — Lei nº 13.709/2018 —, é vedado coletar, extrair, usar ou compartilhar dados pessoais de terceiros sem consentimento. Na prática, isso significa:</p>
+      <ul class="itens">
+        <li>Não exportar a lista de contatos do grupo.</li>
+        <li>Não incluir membros em disparos, listas de transmissão ou automações sem autorização expressa.</li>
+        <li>Não repassar contatos de terceiros sem antes consultá-los.</li>
+        <li>Não publicar imagem, dado ou informação de cliente ou de outro membro sem permissão.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="sec">
+    <div class="wrap">
+      <span class="sec__num">07 · Moderação</span>
+      <h2>Cuidado da <em>rede</em></h2>
+      <p class="lead" style="margin-bottom:1.75rem">A moderação existe para proteger o tempo e a reputação de todos. O critério é progressivo.</p>
+      <ul class="escada">
+        <li><span><strong>Orientação reservada</strong><span>Conversa por mensagem privada, sem exposição.</span></span></li>
+        <li><span><strong>Advertência formal</strong><span>Registro da ocorrência junto à administração.</span></span></li>
+        <li><span><strong>Desligamento</strong><span>Saída do grupo.</span></span></li>
+      </ul>
+
+      <div class="box">
+        <h3>Sem gradação</h3>
+        <p>Condutas graves — discriminação, assédio, fraude ou uso indevido de dados — implicam desligamento imediato. A permanência aqui é um privilégio construído por quem contribui.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FECHO -->
+  <section class="fecho">
+    <div class="wrap">
+      <p class="eyebrow">Nossa essência</p>
+      <h2 style="margin-top:1rem">Menos grupo.<br><strong>Mais comunidade.</strong></h2>
+      <p>Não estamos aqui apenas para divulgar. Estamos aqui para criar relações, colaborar com intenção e crescer juntos. Ao permanecer no GUIA CONNECT, você adere a este pacto.</p>
+      <p class="assinatura">Guia Campo Belo &amp; Região · Campo Belo · Brooklin · Moema</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

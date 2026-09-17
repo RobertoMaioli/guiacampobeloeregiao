@@ -5,6 +5,8 @@
  */
 require_once __DIR__ . '/../config/asaas.php';
 session_start();
+$evento_encerrado = true; // ← alterar para false para reabrir inscrições
+
 $flash    = $_SESSION['flash_evento'] ?? null;
 unset($_SESSION['flash_evento']);
 
@@ -294,7 +296,7 @@ $ASAAS_URL  = ASAAS_PAYMENT_LINK;
             <div class="b-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="var(--gcb-gold)" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             Lançamentos e ações surpresas
           </div>
-          
+
           <div class="card-preco">
             <p class="preco-label">Ingresso por pessoa</p>
             <p class="preco-valor">R$ 59</p>
@@ -303,8 +305,21 @@ $ASAAS_URL  = ASAAS_PAYMENT_LINK;
         </div>
       </div>
 
-      <!-- Coluna direita: formulário -->
+      <!-- Coluna direita: formulário ou encerrado -->
       <div class="col-lg-8">
+
+        <?php if ($evento_encerrado): ?>
+
+        <div class="card-form" style="text-align:center;padding:48px 28px;">
+          <div style="font-size:48px;margin-bottom:16px">🔒</div>
+          <h2 style="color:var(--gcb-green-dark);margin-bottom:8px">Inscrições encerradas</h2>
+          <p style="font-size:13px;color:var(--gcb-warmgray);line-height:1.6;max-width:320px;margin:0 auto">
+            As vagas para o <strong>Guia Connect — Soft Opening</strong> foram encerradas. Fique atento aos próximos eventos do Guia Campo Belo.
+          </p>
+        </div>
+
+        <?php else: ?>
+
         <div class="card-form">
           <h2>Reserve sua vaga</h2>
           <p class="form-sub">Preencha seus dados e clique em <strong>Ir para o pagamento</strong>.</p>
@@ -393,11 +408,13 @@ $ASAAS_URL  = ASAAS_PAYMENT_LINK;
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gcb-green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                 Pix · Cartão de Crédito
               </div>
-              
             </div>
 
           </form>
         </div>
+
+        <?php endif; ?>
+
       </div>
 
     </div>
@@ -424,31 +441,37 @@ function setDoc(tipo) {
 }
 
 /* ── Máscara CPF / CNPJ ── */
-document.getElementById('documento').addEventListener('input', function () {
-  let v = this.value.replace(/\D/g, '');
-  if (tipoDoc === 'cpf') {
-    v = v.substring(0, 11);
-    v = v.replace(/(\d{3})(\d)/, '$1.$2')
-         .replace(/(\d{3})(\d)/, '$1.$2')
-         .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-  } else {
-    v = v.substring(0, 14);
-    v = v.replace(/(\d{2})(\d)/,       '$1.$2')
-         .replace(/(\d{3})(\d)/,       '$1.$2')
-         .replace(/(\d{3})(\d)/,       '$1/$2')
-         .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
-  }
-  this.value = v;
-});
+const docInput = document.getElementById('documento');
+if (docInput) {
+  docInput.addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (tipoDoc === 'cpf') {
+      v = v.substring(0, 11);
+      v = v.replace(/(\d{3})(\d)/, '$1.$2')
+           .replace(/(\d{3})(\d)/, '$1.$2')
+           .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    } else {
+      v = v.substring(0, 14);
+      v = v.replace(/(\d{2})(\d)/,       '$1.$2')
+           .replace(/(\d{3})(\d)/,       '$1.$2')
+           .replace(/(\d{3})(\d)/,       '$1/$2')
+           .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+    }
+    this.value = v;
+  });
+}
 
 /* ── Máscara WhatsApp ── */
-document.getElementById('whatsapp').addEventListener('input', function () {
-  let v = this.value.replace(/\D/g, '').substring(0, 11);
-  if (v.length > 10)     v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
-  else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d+)$/,   '($1) $2-$3');
-  else if (v.length > 2) v = v.replace(/^(\d{2})(\d+)$/,           '($1) $2');
-  this.value = v;
-});
+const wppInput = document.getElementById('whatsapp');
+if (wppInput) {
+  wppInput.addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '').substring(0, 11);
+    if (v.length > 10)     v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d+)$/,   '($1) $2-$3');
+    else if (v.length > 2) v = v.replace(/^(\d{2})(\d+)$/,           '($1) $2');
+    this.value = v;
+  });
+}
 
 /* ── Limpa erro ao digitar ── */
 document.querySelectorAll('.form-control').forEach(el =>
@@ -456,66 +479,66 @@ document.querySelectorAll('.form-control').forEach(el =>
 );
 
 /* ── Submit ── */
-document.getElementById('ev-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
+const evForm = document.getElementById('ev-form');
+if (evForm) {
+  evForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-  /* Validação */
-  const obrigatorios = ['nome', 'email', 'whatsapp', 'documento'];
-  let valido = true;
-  obrigatorios.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el.value.trim()) { el.classList.add('is-invalid'); valido = false; }
-  });
-
-  /* Valida tamanho do documento */
-  const docLimpo = document.getElementById('documento').value.replace(/\D/g, '');
-  if (valido && tipoDoc === 'cpf'  && docLimpo.length !== 11) {
-    document.getElementById('documento').classList.add('is-invalid'); valido = false;
-  }
-  if (valido && tipoDoc === 'cnpj' && docLimpo.length !== 14) {
-    document.getElementById('documento').classList.add('is-invalid'); valido = false;
-  }
-
-  if (!valido) {
-    document.querySelector('.is-invalid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
-  /* Loading no botão */
-  const btn = document.getElementById('btn-pagar');
-  btn.disabled = true;
-  btn.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2.5" stroke-linecap="round"
-         style="animation:spin .8s linear infinite">
-      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-    </svg>
-    Processando…`;
-
-  /* Pré-cadastro silencioso no Guia */
-  try {
-    await fetch('/empresa/actions/evento-inscricao.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nome:           document.getElementById('nome').value.trim(),
-        email:          document.getElementById('email').value.trim(),
-        whatsapp:       document.getElementById('whatsapp').value.replace(/\D/g, ''),
-        documento:      docLimpo,
-        tipo_documento: tipoDoc,
-        empresa_nome:   document.getElementById('empresa_nome').value.trim(),
-        evento_id:      'guia-connect-soft-opening-mai25'
-      })
+    /* Validação */
+    const obrigatorios = ['nome', 'email', 'whatsapp', 'documento'];
+    let valido = true;
+    obrigatorios.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('is-invalid'); valido = false; }
     });
-  } catch (_) { /* silencioso — não bloqueia o pagamento */ }
 
-  /* Redireciona para o checkout Asaas */
-  // Abre o Asaas em nova aba
+    /* Valida tamanho do documento */
+    const docLimpo = document.getElementById('documento').value.replace(/\D/g, '');
+    if (valido && tipoDoc === 'cpf'  && docLimpo.length !== 11) {
+      document.getElementById('documento').classList.add('is-invalid'); valido = false;
+    }
+    if (valido && tipoDoc === 'cnpj' && docLimpo.length !== 14) {
+      document.getElementById('documento').classList.add('is-invalid'); valido = false;
+    }
+
+    if (!valido) {
+      document.querySelector('.is-invalid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    /* Loading no botão */
+    const btn = document.getElementById('btn-pagar');
+    btn.disabled = true;
+    btn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round"
+           style="animation:spin .8s linear infinite">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg>
+      Processando…`;
+
+    /* Pré-cadastro silencioso no Guia */
+    try {
+      await fetch('/empresa/actions/evento-inscricao.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome:           document.getElementById('nome').value.trim(),
+          email:          document.getElementById('email').value.trim(),
+          whatsapp:       document.getElementById('whatsapp').value.replace(/\D/g, ''),
+          documento:      docLimpo,
+          tipo_documento: tipoDoc,
+          empresa_nome:   document.getElementById('empresa_nome').value.trim(),
+          evento_id:      'guia-connect-soft-opening-mai25'
+        })
+      });
+    } catch (_) { /* silencioso — não bloqueia o pagamento */ }
+
+    /* Redireciona para o checkout Asaas */
     window.open(ASAAS_URL, '_blank');
-    
-    // Redireciona a página atual para o sucesso
     window.location.href = '/pages/evento-sucesso.php';
-});
+  });
+}
 </script>
 <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 

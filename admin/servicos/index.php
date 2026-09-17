@@ -62,7 +62,7 @@ $icons_disponiveis = [
     'verified','wifi','pin','phone','mail','star','heart','award',
     'coffee','utensils','wine','paw','spa','scissors','dumbbell',
     'shopping-bag','activity','map','clock','users','building',
-    'monitor','briefcase','camera','music','leaf','card',
+    'monitor','briefcase','camera','music','leaf','card', 'shield',
 ];
 
 include __DIR__ . '/../_layout.php';

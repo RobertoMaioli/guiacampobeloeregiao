@@ -21,11 +21,19 @@ $origem       = Sanitize::get('origem', 'str', '');
 $veio_onboard = $origem === 'onboarding';
 
 if (!in_array($usuario['empresa_status'] ?? '', ['aprovada', 'suspensa'])) {
-    // Permite acesso ao plano se vier do onboarding para pagar
     if (!$veio_onboard || $usuario['empresa_status'] !== 'pendente') {
         header('Location: /empresa/status.php'); exit;
     }
 }
+
+$empresa_id = (int)($usuario['empresa_id'] ?? 0);
+$plano      = $usuario['plano_ativo'] ?? 'essencial';
+
+// ── TEMPORÁRIO: desabilitar checkout ──
+if ($veio_onboard) {
+    header('Location: /empresa/status.php'); exit;
+}
+// ─────────────────────────────────────
 
 $empresa_id = (int)($usuario['empresa_id'] ?? 0);
 $plano      = $usuario['plano_ativo'] ?? 'essencial';

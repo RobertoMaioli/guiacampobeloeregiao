@@ -57,9 +57,12 @@ foreach (DB::query('SELECT categoria_id, COUNT(*) n FROM lugares WHERE ativo=1 G
 }
 
 $icons_disponiveis = [
-    'utensils','coffee','wine','paw','spa','shopping-bag',
-    'activity','dumbbell','scissors','pin','star','heart',
-    'map','navigation','trending-up','grid','award','briefcase',
+    'utensils','coffee','wine','paw','scissors','dumbbell',
+    'shopping-bag','activity','spa','book','home','car','key',
+    'pin','map','camera','music','leaf','briefcase','monitor',
+    'users','building','calculator','scale','brain','smile',
+    'tooth','heart','star','pizza','ice-cream','beef',
+    'shield',
 ];
 
 $edit_id  = Sanitize::get('edit', 'int', 0);
