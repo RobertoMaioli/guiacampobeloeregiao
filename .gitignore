@@ -30,6 +30,9 @@ composer.lock
 .env
 .env.local
 
+# ── Config específica de dev local (produção usa nginx) ────
+.htaccess
+
 # ── QR Codes gerados dinamicamente ─────────────────────────
 uploads/qrcodes/
 

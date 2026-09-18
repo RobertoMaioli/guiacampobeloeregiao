@@ -15,12 +15,18 @@ if (!empty($_SESSION['admin_id'])) {
 
 $erro = '';
 
+// Turnstile depende de domínio cadastrado no Cloudflare — não funciona em localhost/dev.
+$isLocalDev = in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1'], true);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!Sanitize::csrfValid($_POST['_token'] ?? '')) {
         $erro = 'Sessão inválida. Recarregue a página.';
     } else {
 
         // ── Valida Turnstile ──────────────────────────────────────────
+        if ($isLocalDev) {
+            // pulado em ambiente local
+        } else {
         $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
         if (empty($turnstileToken)) {
             $erro = 'Verificação de segurança não concluída.';
@@ -41,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (empty($result['success'])) {
                 $erro = 'Falha na verificação de segurança. Tente novamente.';
             }
+        }
         }
         // ─────────────────────────────────────────────────────────────
 
@@ -266,11 +273,13 @@ $csrf = Sanitize::csrfToken();
                     />
                 </div>
 
+                <?php if (!$isLocalDev): ?>
                 <!-- Cloudflare Turnstile Widget -->
                 <div class="cf-turnstile"
                      data-sitekey="0x4AAAAAACzHCfnzOpQH45p_"
                      data-theme="light">
                 </div>
+                <?php endif; ?>
 
                 <button type="submit" class="btn-login">
                     Entrar no painel
